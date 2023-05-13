@@ -16,21 +16,21 @@ public class Console {
 		
 		String input = cleanConsoleInput();  // see comment
 		
-		while (! input.equalsIgnoreCase("exit")) {
+		while (!input.equalsIgnoreCase("exit")) {
 			
 			ArrayList<String> tokens = lexer.tokenize(input);
 
-			System.out.println(tokens);
-			// String output = "";
+			String output = "";
 			
-			// try {
-			// 	Expression exp = parser.parse(tokens);
-			// 	output = exp.toString();
-			// } catch (Exception e) {
-			// 	System.out.println("Unparsable expression, input was: \"" + input + "\"");
-			// 	input = cleanConsoleInput();
-			// 	continue;
-			// }
+			try {
+				ArrayList<String> preparsed = parser.preparse(tokens);
+				Expression exp = parser.parse(tokens);
+				output = exp.toString();
+			} catch (Exception e) {
+				System.out.println("Unparsable expression, input was: \"" + input + "\"");
+				input = cleanConsoleInput();
+				continue;
+			}
 			
 			// System.out.println(output);
 			

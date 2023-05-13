@@ -1,9 +1,7 @@
 
 import java.util.ArrayList;
-import java.util.Arrays;
 // import java.util.regex.Matcher;
 // import java.util.regex.Pattern;
-import java.util.List;
 
 public class Lexer {
 	
@@ -27,7 +25,6 @@ public class Lexer {
 
 		for(int x = 0; x < input.length(); x++) {
 			String symbol = Character.toString(input.charAt(x));
-
 			if(symbol.equals(";")) return tokens;
 			
 			if(regex.contains(symbol)) {
@@ -37,7 +34,8 @@ public class Lexer {
 				}
 
 				tokens.add(symbol);
-			} else if(symbol.equals(" ") || symbol.equals("\n") || symbol.equals("\t")) {
+			// right now, has issue with two different space characters because of ASCII sets, so need to check two separate space equalities using hex codes
+			} else if( Integer.toHexString((int) symbol.charAt(0)).equals("a0") || Integer.toHexString((int) symbol.charAt(0)).equals("20") || symbol.equals("\n") || symbol.equals("\t")) {
 				if(!currentstr.isEmpty()) {
 					tokens.add(currentstr.toString());
 					currentstr = new StringBuilder();
@@ -51,6 +49,7 @@ public class Lexer {
 			tokens.add(currentstr.toString());
 		}
 
+		System.out.println("LEXER: " + tokens);
 		return tokens;
 	}
 }
