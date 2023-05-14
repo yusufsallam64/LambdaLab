@@ -64,7 +64,7 @@ public class Parser {
 		} else if(curtoken.equals(")")) { 
 			int pairedparenidx = findPairedParenthesis(tokens, tokens.size()-1);
 			if(tokens.get(pairedparenidx + 1).equals("\\")) { //detect and return lambda function
-				if(tokens.indexOf("\\") == 1) { //just lambda left
+				if(tokens.indexOf("\\") == 1 && (pairedparenidx == 0)) { //just lambda left
 					return new Function(new Variable(tokens.get(pairedparenidx + 2)), parse(new ArrayList<String>(tokens.subList(pairedparenidx + 4, tokens.size()-1))));
 				}
 				return new Application(parse(new ArrayList<String>(tokens.subList(0, pairedparenidx))), parse(new ArrayList<String>(tokens.subList(pairedparenidx, tokens.size()))));
