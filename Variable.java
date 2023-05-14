@@ -9,5 +9,4 @@ public class Variable implements Expression {
 	public String toString() {
 		return name;
 	}
-
 }

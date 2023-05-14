@@ -23,11 +23,13 @@ public class Console {
 			String output = "";
 			
 			try {
-				ArrayList<String> preparsed = parser.preparse(tokens);
-				Expression exp = parser.parse(tokens);
+				ArrayList<String> preparsed_tokens = parser.preparse(tokens);
+				Expression exp = parser.parse(preparsed_tokens);
 				output = exp.toString();
+				System.out.println(output);
 			} catch (Exception e) {
 				System.out.println("Unparsable expression, input was: \"" + input + "\"");
+				System.out.println(e.getMessage());
 				input = cleanConsoleInput();
 				continue;
 			}
