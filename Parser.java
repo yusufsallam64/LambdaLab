@@ -17,6 +17,21 @@ public class Parser {
 		}
 		return idx;
 	}
+
+	private int findPairedParenthesisClosing(ArrayList<String> tokens, int idxOfParen) {
+		int count = 1; 
+		int idx = idxOfParen;
+		while(count > 0 && idx < tokens.size()-1) {
+			idx++;
+			if(tokens.get(idx).equals("(")) {
+				count++;
+			}
+			else if(tokens.get(idx).equals(")")) {
+				count--;
+			}
+		}
+		return idx;
+	}
 	
 	public ArrayList<String> preparse(ArrayList<String> inputtokens) {
 		for(int i = inputtokens.size(); i --> 0;) {
@@ -37,8 +52,9 @@ public class Parser {
 				if(inputtokens.get(0).equals("\\")) {
 					inputtokens.add(0, "(");
 
-					int indexofnextparen = inputtokens.subList(i, inputtokens.size()).indexOf(")") + i + 1;
-					if(indexofnextparen == 0) {
+					int indexofnextparen = findPairedParenthesisClosing(new ArrayList<String>(inputtokens.subList(i, inputtokens.size())), 0);
+
+					if(indexofnextparen == inputtokens.size()-1) {
 						inputtokens.add(")");
 					} else {
 						inputtokens.add(indexofnextparen-1, ")");
