@@ -1,7 +1,31 @@
 
 import java.text.ParseException;
 import java.util.ArrayList;
+
+import java.util.HashMap;
+
 public class Parser {
+	private HashMap<String, Expression> variableMap = new HashMap<String, Expression>();
+
+	private void addVariable(Variable var, Expression exp) throws AssignmentError {
+		if(getVariable(var) != null) {
+			throw new AssignmentError("Variable " + var + " is already defined!", -1);
+		}
+		variableMap.put(var.toString(), exp);
+	}
+
+	public HashMap<String, Expression> getSetVariables() {
+		return variableMap;
+	}
+
+	public Expression getVariable(Variable v) {
+		return variableMap.get(v.toString());	
+	}
+
+	public Expression getVariable(String v) {
+		return variableMap.get(v);	
+	}
+
 	//find index of ( that matches with ) **RETURNS INDEX OF ( **
 	private int findPairedParenthesis(ArrayList<String> tokens, int idxOfParen) {
 		int count = 1; 
@@ -33,6 +57,42 @@ public class Parser {
 		return idx;
 	}
 	
+	public Expression handleTokens(ArrayList<String> preparsed_tokens) throws ParseException {
+		Expression exp;
+		if(preparsed_tokens.contains("=")) {
+			try {
+				exp = parse(new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("=")+1, preparsed_tokens.size())));
+				// parser.addVariable(new Variable(preparsed_tokens.get(preparsed_tokens.indexOf("=")-1)), exp);
+
+				int assignmentLocation = preparsed_tokens.indexOf("=");
+				if(assignmentLocation != 1) {
+					throw new AssignmentError("Invalid variable assignment. Multiple tokens found prior to `=` sign. Input Tokens: \"" + preparsed_tokens + "\"", assignmentLocation);
+				}
+				
+				Variable newAssignment = new Variable(preparsed_tokens.get(0));
+				addVariable(newAssignment, exp);
+				System.out.println("Added " + exp + " as " + newAssignment);
+				return exp;
+			} catch (Exception e) {
+				throw e;
+			}
+		} else {
+			exp = parse(preparsed_tokens);
+			if(exp instanceof Variable) {
+				Variable definedVar = (Variable) exp;
+				if(getVariable(definedVar) != null) {
+					return variableMap.get(definedVar.toString());
+				} else {
+					// TODO --> Throw error on this branch as it means we have a variable that is not defined? idrk
+					// honestly this might just be us echoing a variable back which should be okay?
+					return definedVar;
+				}
+			}
+
+			return exp;
+		}
+	}
+
 	public ArrayList<String> preparse(ArrayList<String> inputtokens) {
 		for(int i = inputtokens.size(); i --> 0;) {
 			if(i >= 1) {
@@ -70,17 +130,34 @@ public class Parser {
 	/*
 	 * Turns a set of tokens into an expression.  Comment this back in when you're ready.
 	 */
+	// TODO --> Made it so that this fetches the variables for stuff, and if it isn't defined already then it just returns a new variable?
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
 		String curtoken = tokens.get(tokens.size()-1);
 
 		if(tokens.size() == 1) { //only one element, return variable
 			return new Variable(curtoken); 
 		} else if(tokens.size() == 2) { //only two elements, return application of both
-			return new Application(new Variable(tokens.get(0)), new Variable(tokens.get(1)));
+			Expression left;
+			Expression right;
+
+			if(getVariable(tokens.get(0)) != null) {
+				left = getVariable(new Variable(tokens.get(0)));
+			} else {
+				left = new Variable(tokens.get(0));
+			}
+
+			if(getVariable(tokens.get(1)) != null) {
+				right = getVariable(new Variable(tokens.get(1)));
+			} else {
+				right = new Variable(tokens.get(1));
+			}
+
+			return new Application(left, right);
 		} else if(curtoken.equals(")")) { 
 			int pairedparenidx = findPairedParenthesis(tokens, tokens.size()-1);
 			if(tokens.get(pairedparenidx + 1).equals("\\")) { //detect and return lambda function
 				if(tokens.indexOf("\\") == 1 && (pairedparenidx == 0)) { //just lambda left
+					// if there is gonna be an error, it is most likely with this function variable although not sure
 					return new Function(new Variable(tokens.get(pairedparenidx + 2)), parse(new ArrayList<String>(tokens.subList(pairedparenidx + 4, tokens.size()-1))));
 				}
 				return new Application(parse(new ArrayList<String>(tokens.subList(0, pairedparenidx))), parse(new ArrayList<String>(tokens.subList(pairedparenidx, tokens.size()))));
@@ -92,7 +169,14 @@ public class Parser {
 			}
 		}
 		else {
-			return new Application(parse(new ArrayList<String>(tokens.subList(0, tokens.size()-1))), new Variable(curtoken));
+			Expression right;
+			if(getVariable(curtoken) != null) {
+				right = getVariable(new Variable(curtoken));
+			} else {
+				right = new Variable(curtoken);
+			}
+
+			return new Application(parse(new ArrayList<String>(tokens.subList(0, tokens.size()-1))), right);
 		}
 		// Variable var = new Variable(parse());
 		// This is nonsense code, just to show you how to thrown an Exception.
