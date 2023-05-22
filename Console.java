@@ -24,6 +24,12 @@ public class Console {
 			
 			try {
 				ArrayList<String> preparsed_tokens = parser.preparse(tokens);
+				
+				if(preparsed_tokens.isEmpty()) {
+					input = cleanConsoleInput();
+					continue;
+				}
+
 				Expression exp = parser.handleTokens(preparsed_tokens);
 				output = exp.toString();
 				System.out.println(output);

@@ -25,7 +25,15 @@ public class Lexer {
 
 		for(int x = 0; x < input.length(); x++) {
 			String symbol = Character.toString(input.charAt(x));
-			if(symbol.equals(";")) return tokens;
+			// System.out.println("SYMBOL: " + symbol);
+			// System.out.println("CURRENTSTR: " + currentstr);
+			// System.out.println("TOKENS: " + tokens);
+			if(symbol.equals(";")) {
+				if(!currentstr.isEmpty()) {
+					tokens.add(currentstr.toString());
+				}
+				return tokens;
+			}
 			
 			if(regex.contains(symbol)) {
 				if(!currentstr.isEmpty()) {
