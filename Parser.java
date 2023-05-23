@@ -61,22 +61,32 @@ public class Parser {
 		Expression exp;
 
 		if(preparsed_tokens.get(0).equals("run")) {
+			System.out.println("running something in parser");
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size())));
+			System.out.println("Expression given: " + exp);
 			return exp.run();
 		} else if(preparsed_tokens.contains("=")) {
 			try {
-				exp = parse(new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("=")+1, preparsed_tokens.size())));
+				ArrayList<String> expression_to_parse = new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("=")+1, preparsed_tokens.size()));
+				exp = parse(expression_to_parse);
 
 				int assignmentLocation = preparsed_tokens.indexOf("=");
 				// TODO --> Add check for multiple = signs in the preparsed_tokens
 				if(assignmentLocation != 1) {
 					throw new AssignmentError("Invalid variable assignment. Multiple tokens found prior to `=` sign. Input Tokens: \"" + preparsed_tokens + "\"", assignmentLocation);
 				}
-				
-				Variable newAssignment = new Variable(preparsed_tokens.get(0));
-				addVariable(newAssignment, exp);
-				System.out.println("Added " + exp + " as " + newAssignment);
-				return exp;
+				if(preparsed_tokens.contains("run") && (preparsed_tokens.indexOf("run") == preparsed_tokens.indexOf("=") + 1)) {
+					Variable newAssignment = new Variable(preparsed_tokens.get(0));
+					exp = parse(new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("run")+1, preparsed_tokens.size())));
+					addVariable(newAssignment, exp.run());
+					System.out.println("[EVALUATED] Added " + exp.run() + " as " + newAssignment);
+					return exp.run();
+				} else {
+					Variable newAssignment = new Variable(preparsed_tokens.get(0));
+					addVariable(newAssignment, exp);
+					System.out.println("Added " + exp + " as " + newAssignment);
+					return exp;
+				}
 			} catch (Exception e) {
 				throw e;
 			}

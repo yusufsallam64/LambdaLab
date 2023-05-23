@@ -19,32 +19,20 @@ public class Function implements Expression {
     }
  
     private Expression substitute(Expression current, Expression replace_exp, Variable var_to_replace) {
-        System.out.println("--------------------");
-        System.out.println(current);
-        System.out.println(counter++);
-
         if(current instanceof Variable) {
-            // if(current.toString().equals(var_to_replace.toString())) {
-            System.out.println("path a");
             if(((Variable) current).getID().equals(var_to_replace.getID())) {
                 return replace_exp;
             } else {
                 return current;
             }
         } else if (current instanceof Application) { // (\x.(x x)) y
-            System.out.println("path b");
             Application app = (Application) current;           
             Expression leftside = app.getLeft();
             Expression rightside = app.getRight();
             return new Application(substitute(leftside, replace_exp, var_to_replace), substitute(rightside, replace_exp, var_to_replace));
         } else {
-            System.out.println("path c");
-
             Function func = (Function) current;
-
-            System.out.println("Function Given: " + func);
             if(!func.var.equals(var_to_replace)) {
-                System.out.println("Not the same variable");
                 return func;
             }
             Expression replace_symbols_in = func.exp;
@@ -57,12 +45,13 @@ public class Function implements Expression {
                     return replace_symbols_in;
                 }
             } else if (replace_symbols_in instanceof Application) {
+                System.out.println("b");
                 Application app = (Application) replace_symbols_in;
                 Expression leftside = app.getLeft();
                 Expression rightside = app.getRight();
                 Expression leftside_subbed = substitute(leftside, replace_exp, var_to_replace);
                 Expression rightside_subbed = substitute(rightside, replace_exp, var_to_replace);
-                return new Application(leftside_subbed, rightside_subbed);
+                return new Application(leftside_subbed, rightside_subbed).run();
             } else if (replace_symbols_in instanceof Function) {
                 // decent chance this is also wrong
                 Function f = (Function) replace_symbols_in;
@@ -75,20 +64,17 @@ public class Function implements Expression {
     }
 
     private void syncVariableIDs(Expression f, UUID id_to_set, String name_to_set_against) {
-        System.out.println("Syncing Expression: " + f);
+        // System.out.println("Syncing Expression: " + f);
         if(f instanceof Function) {
             Function function = (Function) f;
             id_to_set = function.var.getID();
             name_to_set_against = function.var.toString();
-            System.out.println("instance of function");
             if(function.exp instanceof Variable) {
                 if(((Variable) function.exp).toString().equals(function.var.toString())) {
-                    System.out.println("Updated a variable ID");
                     ((Variable) function.exp).setID(id_to_set);
                 }
             } else if (function.exp instanceof Application) {
                 Application app = (Application) function.exp;
-                System.out.println("found application to set");
                 syncVariableIDs(app.getLeft(), id_to_set, name_to_set_against);
                 syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
             } else if (function.exp instanceof Function) {
@@ -97,14 +83,10 @@ public class Function implements Expression {
             }
         } else {
             if(f instanceof Variable) {
-                System.out.println("instance of var");
-                System.out.println(f);
-                System.out.println("----");
                 if(f.toString().equals(name_to_set_against)) {
                     ((Variable) f).setID(id_to_set);
                 }
             } else {
-                System.out.println("instance of app");
                 Application app = (Application) f;
                 syncVariableIDs(app.getLeft(), id_to_set, name_to_set_against);
                 syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
@@ -114,7 +96,7 @@ public class Function implements Expression {
 
     private void fixVariableIdentifiers(Expression exp) {
         // syncVariableIDs(exp, null, null);
-        System.out.println("fixing");
+        System.out.println("fixing ids");
         syncVariableIDs(exp, this.var.getID(),this.var.toString());
     }
 
@@ -145,5 +127,3 @@ public class Function implements Expression {
         }
     }
 }
-
-

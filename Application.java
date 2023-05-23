@@ -24,21 +24,31 @@ public class Application implements Expression {
     }
 
     public Expression run() {
-        if(!(left instanceof Function) && !(right instanceof Function)) {
-            return this;
-        } else if ( (left instanceof Function) ) {
-            // this is the only thing that can actually "run"
+        System.out.println("calls this run function");
+        if(left instanceof Function) {
+            System.out.println("a");
             Function func = (Function) left;
             return func.run(right);
+        } else {
+            System.out.println("this stuff");
+            return new Application(this.left.run(), this.right.run());
+        }       
 
-        } else if ( (right instanceof Function) ) {
+        // if(!(left instanceof Function) && !(right instanceof Function)) {
+        //     return this;
+        // } else if ( (left instanceof Function) ) {
+        //     // this is the only thing that can actually "run"
+        //     Function func = (Function) left;
+        //     return func.run(right);
 
-            Function func = (Function) right;
-            return func.run(left);
+        // } else if ( (right instanceof Function) ) {
+
+        //     Function func = (Function) right;
+        //     return func.run(left);
 
 
-        }
+        // }
 
-        throw new Error("Not implemented");
+        // throw new Error("Not implemented");
     }
 }
