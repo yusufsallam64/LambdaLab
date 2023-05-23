@@ -3,6 +3,7 @@ import java.util.UUID;
 public class Function implements Expression {
     private Variable var;
     private Expression exp;
+    private static int counter = 0;
 
     public Function(Variable var, Expression exp) {
         this.var = var;
@@ -20,6 +21,7 @@ public class Function implements Expression {
     private Expression substitute(Expression current, Expression replace_exp, Variable var_to_replace) {
         System.out.println("--------------------");
         System.out.println(current);
+        System.out.println(counter++);
 
         if(current instanceof Variable) {
             // if(current.toString().equals(var_to_replace.toString())) {
@@ -37,21 +39,37 @@ public class Function implements Expression {
             return new Application(substitute(leftside, replace_exp, var_to_replace), substitute(rightside, replace_exp, var_to_replace));
         } else {
             System.out.println("path c");
+
             Function func = (Function) current;
+
             System.out.println("Function Given: " + func);
-            Expression returned = substitute(func.exp, replace_exp, var_to_replace);
-            System.out.println("Post-Substitution Expression: " + returned);
-            System.out.println("Var?: " + (returned instanceof Variable));
-            System.out.println("Fn?: " + (returned instanceof Function));
-            System.out.println("App?: " + (returned instanceof Application));
+            if(!func.var.equals(var_to_replace)) {
+                System.out.println("Not the same variable");
+                return func;
+            }
+            Expression replace_symbols_in = func.exp;
 
-            System.out.println("returning: " + returned);
-
-            // TODO --> not gonna lie, if there is a bug its in here i have no idea what this does
-            if(returned instanceof Variable) {
-                return new Function(func.var, returned);
+            if(replace_symbols_in instanceof Variable) {
+                if( ((Variable) replace_symbols_in).getID().equals(var_to_replace.getID()) ) {
+                    return replace_exp;
+                } else {
+                    // this might be wrong
+                    return replace_symbols_in;
+                }
+            } else if (replace_symbols_in instanceof Application) {
+                Application app = (Application) replace_symbols_in;
+                Expression leftside = app.getLeft();
+                Expression rightside = app.getRight();
+                Expression leftside_subbed = substitute(leftside, replace_exp, var_to_replace);
+                Expression rightside_subbed = substitute(rightside, replace_exp, var_to_replace);
+                return new Application(leftside_subbed, rightside_subbed);
+            } else if (replace_symbols_in instanceof Function) {
+                // decent chance this is also wrong
+                Function f = (Function) replace_symbols_in;
+                return f;
             } else {
-                return returned;
+                // no clue how this branch would even get hit
+                throw new Error("Not implemented");
             }
         }
     }
