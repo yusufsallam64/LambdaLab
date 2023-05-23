@@ -63,21 +63,9 @@ public class Parser {
 		if(preparsed_tokens.get(0).equals("run")) {
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size())));
 			return exp.run();
-
-			// switch(instanceof exp) {
-
-			// }
-			// if(exp instanceof Application) {
-			// 	Application app = (Application) exp;
-			// 	return app.run();
-			// } else if{
-			// 	return exp;
-			// }
-
 		} else if(preparsed_tokens.contains("=")) {
 			try {
 				exp = parse(new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("=")+1, preparsed_tokens.size())));
-				// parser.addVariable(new Variable(preparsed_tokens.get(preparsed_tokens.indexOf("=")-1)), exp);
 
 				int assignmentLocation = preparsed_tokens.indexOf("=");
 				// TODO --> Add check for multiple = signs in the preparsed_tokens
@@ -194,14 +182,6 @@ public class Parser {
 
 			return new Application(parse(new ArrayList<String>(tokens.subList(0, tokens.size()-1))), right);
 		}
-		// Variable var = new Variable(parse());
-		// This is nonsense code, just to show you how to thrown an Exception.
-		// To throw it, type "error" at the console.
-		// if (var.toString().equals("error")) {
-		// 	throw new ParseException("User typed \"Error\" as the input!", 0);
-		// }
-		// (/a.b c)
-		// return var;
 	}
 }
 
