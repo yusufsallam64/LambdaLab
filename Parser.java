@@ -61,7 +61,6 @@ public class Parser {
 		Expression exp;
 
 		if(preparsed_tokens.get(0).equals("run")) {
-			System.out.println("running something in parser");
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size())));
 			System.out.println("Expression given: " + exp);
 			return exp.run();

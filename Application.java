@@ -24,31 +24,64 @@ public class Application implements Expression {
     }
 
     public Expression run() {
-        System.out.println("calls this run function");
+        System.out.println("Expression left: " + left + " Expression right: " + right);
+
         if(left instanceof Function) {
-            System.out.println("a");
+            // System.out.println("Detecting function and running it");
+            // printExpression(left);
             Function func = (Function) left;
-            return func.run(right);
+            // return func.run(right);
+            Expression returned = func.run(right);
+            // System.out.println("Returned: " + returned);
+            // System.out.println("Function: " + func);
+            // System.out.println("Input: " + right);
+
+            return returned;
         } else {
-            System.out.println("this stuff");
-            return new Application(this.left.run(), this.right.run());
+            // System.out.println("Detecting something not a function");
+
+            // return (this.left.run()).run(this.right.run());
+            Expression leftexp = this.left.run();
+            if(leftexp instanceof Function) {
+                Function func = (Function) leftexp;
+                return func.run(this.right.run());
+            } else {
+                return new Application(leftexp, this.right.run()); // idk if this is right
+            }
         }       
-
-        // if(!(left instanceof Function) && !(right instanceof Function)) {
-        //     return this;
-        // } else if ( (left instanceof Function) ) {
-        //     // this is the only thing that can actually "run"
-        //     Function func = (Function) left;
-        //     return func.run(right);
-
-        // } else if ( (right instanceof Function) ) {
-
-        //     Function func = (Function) right;
-        //     return func.run(left);
-
-
-        // }
-
-        // throw new Error("Not implemented");
     }
+
+    public void printExpression(Expression exp) {
+        if(exp instanceof Variable) {
+            System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
+        } else if (exp instanceof Function) {
+            System.out.println("Function: " + exp);
+            System.out.println("[Function Variable : " + ((Function) exp).getVar() + " : " + ((Function) exp).getVar().getID() + "]");
+            printExpression(((Function) exp).getExp());
+        } else if (exp instanceof Application) {
+            System.out.println("Application: " + exp);
+            printExpression(((Application) exp).getLeft());
+            printExpression(((Application) exp).getRight());
+        }
+    }
+
 }
+
+
+// 0 = \f.\x.x
+// Added (λf.(λx.x)) as 0
+// > succ = \n.\f.\x.f (n f x)
+// Added (λn.(λf.(λx.(f ((n f) x))))) as succ
+// > 1 = run succ 0
+// Added (λf.(λx.(f x))) as 1
+
+// 0 = \f.\x.x
+// succ = \n.\f.\x.f (n f x)
+// 1 = run succ 0
+// Added (λf.(λx.(f x))) as 1
+
+// run (\n.\f.\x.f (n f x) \f.\x.x))
+
+// ((λn.(λf.(λx.(f ((n f) x))))) (λf.(λx.x)))
+
+// run (\a.\b.(a b)) e
