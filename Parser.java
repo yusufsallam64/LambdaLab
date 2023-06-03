@@ -2,29 +2,8 @@
 import java.text.ParseException;
 import java.util.ArrayList;
 
-import java.util.HashMap;
-
 public class Parser {
-	private HashMap<String, Expression> variableMap = new HashMap<String, Expression>();
-
-	private void addVariable(Variable var, Expression exp) throws AssignmentError {
-		if(getVariable(var) != null) {
-			throw new AssignmentError("Variable " + var + " is already defined!", -1);
-		}
-		variableMap.put(var.toString(), exp);
-	}
-
-	public HashMap<String, Expression> getSetVariables() {
-		return variableMap;
-	}
-
-	public Expression getVariable(Variable v) {
-		return variableMap.get(v.toString());	
-	}
-
-	public Expression getVariable(String v) {
-		return variableMap.get(v);	
-	}
+	VariableMap variableMap = new VariableMap();
 
 	//find index of ( that matches with ) **RETURNS INDEX OF ( **
 	private int findPairedParenthesis(ArrayList<String> tokens, int idxOfParen) {
@@ -63,7 +42,17 @@ public class Parser {
 		if(preparsed_tokens.get(0).equals("run")) {
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size())));
 			System.out.println("Expression given: " + exp);
-			return exp.run();
+
+			// just so that if running something gives a defined var, you return the name of that var 
+			Expression result = exp.run();
+			Variable corresponding_var = variableMap.getVarByExp(result);
+			
+			if(corresponding_var != null) {
+				return corresponding_var;
+			} else {
+				return result;
+			}
+			// return exp.run();
 		} else if(preparsed_tokens.contains("=")) {
 			try {
 				ArrayList<String> expression_to_parse = new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("=")+1, preparsed_tokens.size()));
@@ -77,12 +66,12 @@ public class Parser {
 				if(preparsed_tokens.contains("run") && (preparsed_tokens.indexOf("run") == preparsed_tokens.indexOf("=") + 1)) {
 					Variable newAssignment = new Variable(preparsed_tokens.get(0));
 					exp = parse(new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("run")+1, preparsed_tokens.size())));
-					addVariable(newAssignment, exp.run());
+					variableMap.addVariable(newAssignment, exp.run());
 					System.out.println("[EVALUATED] Added " + exp.run() + " as " + newAssignment);
 					return exp.run();
 				} else {
 					Variable newAssignment = new Variable(preparsed_tokens.get(0));
-					addVariable(newAssignment, exp);
+					variableMap.addVariable(newAssignment, exp);
 					System.out.println("Added " + exp + " as " + newAssignment);
 					return exp;
 				}
@@ -93,11 +82,9 @@ public class Parser {
 			exp = parse(preparsed_tokens);
 			if(exp instanceof Variable) {
 				Variable definedVar = (Variable) exp;
-				if(getVariable(definedVar) != null) {
-					return variableMap.get(definedVar.toString());
+				if(variableMap.getVariable(definedVar) != null) {
+					return variableMap.getValue(definedVar);
 				} else {
-					// TODO --> Throw error on this branch as it means we have a variable that is not defined? idrk
-					// honestly this might just be us echoing a variable back which should be okay?
 					return definedVar;
 				}
 			}
@@ -153,14 +140,16 @@ public class Parser {
 			Expression left;
 			Expression right;
 
-			if(getVariable(tokens.get(0)) != null) {
-				left = getVariable(new Variable(tokens.get(0)));
+			if(variableMap.getVariable(tokens.get(0)) != null) {
+				// left = getVariable(new Variable(tokens.get(0)));
+				left = variableMap.getVariable(tokens.get(0));
 			} else {
 				left = new Variable(tokens.get(0));
 			}
 
-			if(getVariable(tokens.get(1)) != null) {
-				right = getVariable(new Variable(tokens.get(1)));
+			if(variableMap.getVariable(tokens.get(1)) != null) {
+				// right = getVariable(new Variable(tokens.get(1)));
+				right = variableMap.getVariable(tokens.get(1));
 			} else {
 				right = new Variable(tokens.get(1));
 			}
@@ -183,8 +172,9 @@ public class Parser {
 		}
 		else {
 			Expression right;
-			if(getVariable(curtoken) != null) {
-				right = getVariable(new Variable(curtoken));
+			if(variableMap.getVariable(curtoken) != null) {
+				// right = getVariable(new Variable(curtoken));
+				right = variableMap.getVariable(curtoken);
 			} else {
 				right = new Variable(curtoken);
 			}
@@ -193,22 +183,3 @@ public class Parser {
 		}
 	}
 }
-
-// (((a)) c)
-// 
-// (a b) (c d)
-// (e f) (a (b c) d)
-
-// a b (c d) (e (f g) h)
-// (((a b) (c d)) ((e (f g)) h)))
-
-// (a b c) --> [a b]
-// ((a b)  c) --> [[a b] c]
-// (a (b c))
-// ( ( a b ) ( c d ) )
-// a b (c d) (e (f g) h) --> ANSWER: (((a b) (c d)) ((e (f g)) h))
-
-// BROKEN ONES:
-// \f.(f x)
-// λf.(f x)
-//    (λf.(f x))
