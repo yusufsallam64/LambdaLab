@@ -82,8 +82,10 @@ public class Parser {
 			exp = parse(preparsed_tokens);
 			if(exp instanceof Variable) {
 				Variable definedVar = (Variable) exp;
+
 				if(variableMap.getVariable(definedVar) != null) {
-					return variableMap.getValue(definedVar);
+					Expression associated_exp = variableMap.getVariable(definedVar);
+					return associated_exp;
 				} else {
 					return definedVar;
 				}

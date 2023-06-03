@@ -16,13 +16,14 @@ public class VariableMap {
 	}
 
 	public Expression getVariable(Variable v) {
-		return variableMap.get(v);	
+		return getVariable(v.toString());
 	}
 
 	// this is kinda hacky, but it makes it easier to get stuff from varmap
 	public Expression getVariable(String v) {
 		for(Entry<Variable, Expression> entry : variableMap.entrySet()) {
 			if(entry.getKey().toString().equals(v)) {
+				System.out.println("returning value: " + entry.getValue());
 				return entry.getValue();
 			}
 		}
