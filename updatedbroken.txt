@@ -1,0 +1,36 @@
+run xor true false
+
+run (if (and true false) WRONG-ANSWER Correct-Answer!)
+
+3 = run + 2 1
+4 = run * 2 2
+
+6 = run pred (pred (succ (+ 2 5)))
+
+run (if (even? 2) Correct-Answer! WRONG-ANSWER!) -- doesnt run enough
+
+run (if (even? 1) WRONG-ANSWER Correct-Answer!) -- i think this is same issue as xor 
+
+number tests past odd don't work
+
+run (car (cons Correct-Answer! WRONG-ANSWER!))
+run (cdr (cons WRONG-ANSWER! Correct-Answer!))
+
+most linked lists wont work
+
+
+false = \f.\x.x
+true = λx.λy.x
+and = λp.λq.p q p
+or = λp.λq.p p q
+not = λp.p false true
+xor = \p.\q.p (not q) q
+if = λb.λT.λF.((b T) F)
+succ = \n.\f.\x.f (n f x)
+pred = λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
++ = λm.λn.λf.λx.(m f) ((n f) x)
+* = λn.λm.λf.λx.n (m f) x
+- = λm.λn.(n pred) m
+0 = \f.\x.x    ; same as false
+1 = run succ 0
+2 = run succ 1

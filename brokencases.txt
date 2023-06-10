@@ -1,0 +1,32 @@
+run (if (and true false) WRONG-ANSWER Correct-Answer!) --> i think??? same thing
+
+generating numbers works except for:
+3 = run + 2 1
+4 = run * 2 2
+
+no number-tests work basically
+
+false = \f.\x.x
+true = λx.λy.x
+and = λp.λq.p q p
+or = λp.λq.p p q
+not = λp.p false true
+xor = \p.\q.p (not q) q
+
+
+if = λb.λT.λF.((b T) F)
+
+
+succ = \n.\f.\x.f (n f x)
+pred = λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
++ = λm.λn.λf.λx.(m f) ((n f) x)
+* = λn.λm.λf.λx.n (m f) x
+- = λm.λn.(n pred) m
+
+
+0 = \f.\x.x    ; same as false
+cons = λx.λy.λf.f x y
+car = λp.p true
+
+
+xor false true or something breaks i have no idea why

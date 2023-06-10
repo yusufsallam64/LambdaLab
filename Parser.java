@@ -41,7 +41,7 @@ public class Parser {
 
 		if(preparsed_tokens.get(0).equals("run")) {
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size())));
-			System.out.println("Expression given: " + exp);
+			// System.out.println("Expression given: " + exp);
 
 			// just so that if running something gives a defined var, you return the name of that var 
 			Expression result = exp.run();
@@ -125,7 +125,6 @@ public class Parser {
 			}
 		}
 
-		System.out.println("PREPARSER: " + inputtokens);
 		return inputtokens;
 	}
 

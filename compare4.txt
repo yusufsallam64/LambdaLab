@@ -1,0 +1,52 @@
+> run or true false
+EXPRESSION: (λp.(λq.((p p) q)))
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: p
+----------
+EXPRESSION: ((p p) q)
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: p
+----------
+EXPRESSION: (p p)
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: p
+----------
+EXPRESSION: p
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: p
+----------
+EXPRESSION: p
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: p
+----------
+EXPRESSION: (λx.(λy.x))
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: x
+----------
+EXPRESSION: x
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: x
+----------
+EXPRESSION: q
+REPLACE EXPRESSION: (λx.(λy.x))
+VARIABLE TO REPLACE: p
+----------
+EXPRESSION: (λy.(λx.(λy.x)))
+REPLACE EXPRESSION: q
+VARIABLE TO REPLACE: y
+----------
+EXPRESSION: (λy.x)
+REPLACE EXPRESSION: q
+VARIABLE TO REPLACE: y
+----------
+here
+EXPRESSION: (λq.(λx.(λy.x)))
+REPLACE EXPRESSION: (λf.(λx.x))
+VARIABLE TO REPLACE: q
+----------
+EXPRESSION: (λy.x)
+REPLACE EXPRESSION: (λf.(λx.x))
+VARIABLE TO REPLACE: q
+----------
+here
+true

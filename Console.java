@@ -32,8 +32,8 @@ public class Console {
 				
 				Expression exp = parser.handleTokens(preparsed_tokens);
 				output = exp.toString();
-				System.out.println(output);
 
+				System.out.println(output);
 			} catch (Exception e) {
 				System.out.println("Unparsable expression, input was: \"" + input + "\"");
 				System.out.println(e.getMessage());

@@ -24,29 +24,33 @@ public class Application implements Expression {
     }
 
     public Expression run() {
-        System.out.println("Expression left: " + left + " Expression right: " + right);
-
+        System.out.println("APPLICATION: " + this);
         if(left instanceof Function) {
-            // System.out.println("Detecting function and running it");
-            // printExpression(left);
             Function func = (Function) left;
-            // return func.run(right);
             Expression returned = func.run(right);
-            // System.out.println("Returned: " + returned);
-            // System.out.println("Function: " + func);
-            // System.out.println("Input: " + right);
-
-            return returned;
+            return returned.run();
         } else {
-            // System.out.println("Detecting something not a function");
-
-            // return (this.left.run()).run(this.right.run());
             Expression leftexp = this.left.run();
+
             if(leftexp instanceof Function) {
                 Function func = (Function) leftexp;
                 return func.run(this.right.run());
             } else {
-                return new Application(leftexp, this.right.run()); // idk if this is right
+                Expression left_run_returned = leftexp.run();
+                if(left_run_returned instanceof Function) {
+                    return ((Function) leftexp.run()).run(this.right.run());
+                } // TODO --> something is funky with this
+
+                // else if (left_run_returned instanceof Application) { // this wrong fo sho
+                //     Application app = (Application) left_run_returned; 
+
+                //     return new Application(app.run(), this.right.run());
+                // }
+                
+                // TODO -- We need cases to check to see if we have an application then run the left and right i think
+                // else if ()
+
+                return new Application(leftexp.run(), this.right.run());
             }
         }       
     }
@@ -64,24 +68,4 @@ public class Application implements Expression {
             printExpression(((Application) exp).getRight());
         }
     }
-
 }
-
-
-// 0 = \f.\x.x
-// Added (λf.(λx.x)) as 0
-// > succ = \n.\f.\x.f (n f x)
-// Added (λn.(λf.(λx.(f ((n f) x))))) as succ
-// > 1 = run succ 0
-// Added (λf.(λx.(f x))) as 1
-
-// 0 = \f.\x.x
-// succ = \n.\f.\x.f (n f x)
-// 1 = run succ 0
-// Added (λf.(λx.(f x))) as 1
-
-// run (\n.\f.\x.f (n f x) \f.\x.x))
-
-// ((λn.(λf.(λx.(f ((n f) x))))) (λf.(λx.x)))
-
-// run (\a.\b.(a b)) e

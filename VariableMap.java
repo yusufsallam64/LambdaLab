@@ -23,7 +23,6 @@ public class VariableMap {
 	public Expression getVariable(String v) {
 		for(Entry<Variable, Expression> entry : variableMap.entrySet()) {
 			if(entry.getKey().toString().equals(v)) {
-				System.out.println("returning value: " + entry.getValue());
 				return entry.getValue();
 			}
 		}

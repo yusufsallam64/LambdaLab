@@ -1,0 +1,3 @@
+false = \f.\x.x
+true = λx.λy.x
+and = λp.λq.p q p
