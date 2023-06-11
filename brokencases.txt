@@ -24,17 +24,17 @@ THE SUCC ONES FOR NUMBERS ALSO BREAKS, NOT SURE WHY
 
 
 PASTE IN:
-0=(λf.(λx.x))
 1=(λf.(λx.(f x)))
 2=(λf.(λx.(f (f x))))
 3=(λf.(λx.(f (f (f x)))))
 4=(λf.(λx.(f (f (f (f x))))))
-5=(λf.(λx.(f (f (f (f (f x)))))))
 6=(λf.(λx.(f (f (f (f (f (f x))))))))
 7=(λf.(λx.(f (f (f (f (f (f (f x)))))))))
 8=(λf.(λx.(f (f (f (f (f (f (f (f x))))))))))
 9=(λf.(λx.(f (f (f (f (f (f (f (f (f x)))))))))))
 10=(λf.(λx.(f (f (f (f (f (f (f (f (f (f x))))))))))))
+
+5=(λf.(λx.(f (f (f (f (f x)))))))
 succ = \n.\f.\x.f (n f x)
 pred = λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
 + = λm.λn.λf.λx.(m f) ((n f) x)
@@ -47,8 +47,29 @@ and = λp.λq.p q p
 or = λp.λq.p p q
 xor = \p.\q.p (not q) q
 if = λb.λT.λF.((b T) F)
+
+0 = \f.\x.x    ; same as false
+succ = \n.\f.\x.f (n f x)
+1 = run succ 0
+2 = run succ 1
+3 = run + 2 1
+4 = run * 2 2
+
+5 = (λf.(λx.(f (f (f (f (f x)))))))
+
+6 = run pred (pred (succ (+ 2 5)))
+7 = run succ (succ 5)
+if = λb.λT.λF.((b T) F)
 even? = λn.n not true
 odd? = \x.not (even? x)
+zero? = \n.n (\x.false) true
+leq? = \m.\n.zero?(- m n)
+lt? = \a.\b.not (leq? b a)
+gt? = \a.\b.not (leq? a b)
+eq? = \m.\n.and (leq? m n) (leq? n m)
+neq? = \a.\b.(not (eq? a b))
+geq? = \a.\b.(leq? b a)
+
 zero?=(λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x))))
 leq?=(λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n))))
 lt?=(λa.(λb.((λp.((p (λf.(λx.x))) (λx.(λy.x)))) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) b) a))))
@@ -60,6 +81,7 @@ cons = λx.λy.λf.f x y
 car = λp.p true
 cdr = λp.p false
 null = \x.true
+
 
 
 3 = run + 2 1 --> breaks
@@ -84,6 +106,9 @@ succ=(λn.(λf.(λx.(f ((n f) x)))))
 *=(λn.(λm.(λf.(λx.((n (m f)) x)))))
 -=(λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m)))
 0 = \f.\x.x    ; same as false
+
+
+
 1=(λf.(λx.(f x)))
 2=(λf.(λx.(f (f x))))
 
@@ -93,5 +118,3 @@ succ=(λn.(λf.(λx.(f ((n f) x)))))
 
 
 
-0 = \f.\x.x    ; same as false
-succ = \n.\f.\x.f (n f x)

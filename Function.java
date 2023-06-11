@@ -27,6 +27,10 @@ public class Function implements Expression {
         return this.exp;
     }
 
+    public void setExp(Expression exp) {
+        this.exp = exp;
+    }
+
     public Expression run() {
         return this;
     }
@@ -41,26 +45,26 @@ public class Function implements Expression {
     * @return      Returns the final substituted expression
     */
     public Expression substitute(Variable varToReplace, Expression replaceExp) {
-        System.out.println("----------------------------");
-        System.out.println("VAR TO REPLACE: " + varToReplace);
-        System.out.println("REPLACE EXP: " + replaceExp);
-        System.out.println("THIS FUNCTION: " + this);
+        // System.out.println("----------------------------");
+        // System.out.println("VAR TO REPLACE: " + varToReplace);
+        // System.out.println("REPLACE EXP: " + replaceExp);
+        // System.out.println("THIS FUNCTION: " + this);
         if(this.exp instanceof Function innerFunc) {
-            System.out.println("marking " + innerFunc + " as inner function" );
             innerFunc.setInnerFunction(true);
         }
+        
         if(varToReplace.getID().equals(this.var.getID())) {
             if(this.exp instanceof Function func_exp) {
                 if(func_exp.exp instanceof Variable functionVariable) {
                     if(functionVariable.getID().equals(varToReplace.getID())) {
-                        System.out.println("1");
+                        // System.out.println("1");
                         return new Function(func_exp.var, replaceExp);
                     } else {
-                        System.out.println("2");
+                        // System.out.println("2");
                         return new Function(func_exp.var, func_exp.exp);
                     }
                 }
-                System.out.println("3");
+                // System.out.println("3");
                 if(func_exp.exp instanceof Function innerInnerFunc) {
                     innerInnerFunc.setInnerFunction(true);
                 }
@@ -71,12 +75,27 @@ public class Function implements Expression {
             }
             Expression returned = (this.exp).substitute(varToReplace, replaceExp);
             
-            System.out.println("4");
-            System.out.println("INNERFUNC " + this.innerFunction);
+            // System.out.println("4");
             return returned;
         } else {
-            System.out.println("5");
+            // System.out.println("5");      
+
+            // Function wegotthis = new Function(this.var, recurseUntilApp(this.exp).substitute(varToReplace, replaceExp));
             return new Function(this.var, this.exp.substitute(varToReplace, replaceExp));
+            
+            // return wegotthis;
+        } 
+    }
+
+    public Expression recurseUntilApp(Expression a) {
+        if(a instanceof Function func) {
+            return new Function(func.getVar(), recurseUntilApp(func.getExp()));
+        } else if(a instanceof Variable) {
+            return a; // this might be wrong
+        } else {
+            Application app = (Application) a;
+            System.out.println("our application is: " + app);
+            return app.run();
         }
     }
 
@@ -123,19 +142,7 @@ public class Function implements Expression {
         syncVariableIDs(this, this.var.getID(),this.var.toString());
     }
 
-    public void printExpression(Expression exp) {
-        if(exp instanceof Variable) {
-            System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
-        } else if (exp instanceof Function) {
-            System.out.println("Function: " + exp);
-            System.out.println("[Function Variable : " + ((Function) exp).var + " : " + ((Function) exp).var.getID() + "]");
-            printExpression(((Function) exp).exp);
-        } else if (exp instanceof Application) {
-            System.out.println("Application: " + exp);
-            printExpression(((Application) exp).getLeft());
-            printExpression(((Application) exp).getRight());
-        }
-    }
+    
 }
 
 // false = \f.\x.x

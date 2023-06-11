@@ -56,15 +56,16 @@ public class Parser {
 	}
 	
 	public Expression handleTokens(ArrayList<String> preparsed_tokens) throws ParseException {
+		Executor executor = new Executor();
 		Expression exp;
 
 		if(preparsed_tokens.get(0).equals("run")) {
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size()))); // TODO --> add expression stuff in here
-			System.out.println("PREPARSED_TOKENS: " + preparsed_tokens);
-			System.out.println("Expression given: " + exp);
 
 			// just so that if running something gives a defined var, you return the name of that var 
-			Expression result = exp.run();
+			// Expression result = exp.run();
+
+			Expression result = executor.execute_expression(exp);
 			Variable corresponding_var = variableMap.getVarByExp(result);
 			
 			if(corresponding_var != null) {
@@ -129,7 +130,6 @@ public class Parser {
 	 * Turns a set of tokens into an expression.  Comment this back in when you're ready.
 	 */
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
-		System.out.println("tokens: " + tokens);
 		String curtoken = tokens.get(tokens.size()-1);
 
 		if(tokens.size() == 1) { //only one element, return variable

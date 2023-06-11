@@ -22,13 +22,31 @@ public class Application implements Expression {
         return this.right;
     }
 
-    public Expression run() {
-        System.out.println("currentapp: " + this);
+    public Expression recurseUntilApp(Expression a) {
+        if(a instanceof Function func) {
+            Expression asdf = recurseUntilApp(func.getExp());
+            return new Function(func.getVar(), asdf);
+        } else if(a instanceof Variable) {
+            return a; // this might be wrong
+        } else {
+            Application app = (Application) a;
+            System.out.println("our application is (in application.java): " + app);
+            return app.run();
+        }
+    }
 
+    public Expression run() {
         if(this.left instanceof Function) {
             Function leftSide = (Function) this.left;
             leftSide.fixVariableIdentifiers();
-            return leftSide.substitute(((Function) left).getVar(), this.getRight()).run();
+
+            Expression whatwegotback = leftSide.substitute(((Function) left).getVar(), this.getRight()).run();
+
+            // if(whatwegotback instanceof Function funcreturned) {
+            //     return recurseUntilApp(whatwegotback);
+            // }
+            
+            return whatwegotback;
         }
         else {
             Application returnApp = new Application(this.left.run(), this.right.run());
