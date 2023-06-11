@@ -1,17 +1,12 @@
 public class Executor {
     
     public Expression execute_expression(Expression exp) {
-        Expression fully_executed = exp.run();
-        System.out.println("we have gotten back: " + fully_executed);
+        Expression returned_initial = exp.run();
+        System.out.println("we have gotten back: " + returned_initial);
         
-        // printExpression(returned);
-        // Expression fully_executed = runAllRemainingRedexes(returned);
+        Expression fully_executed = LoopThroughExpression(returned_initial);
         
         System.out.println("after fully executing: " + fully_executed);
-
-        // Expression loopedthroughtething = LoopThroughExpression(fully_executed);
-
-        // System.out.println("matt's thing: " + loopedthroughtething);
         return fully_executed;
     }
 

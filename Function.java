@@ -3,7 +3,7 @@ import java.util.UUID;
 public class Function implements Expression {
     private Variable var;
     private Expression exp;
-    private boolean innerFunction;
+    public boolean innerFunction;
     
     public Function(Variable var, Expression exp) {
         this.var = var;
@@ -45,11 +45,7 @@ public class Function implements Expression {
     * @return      Returns the final substituted expression
     */
     public Expression substitute(Variable varToReplace, Expression replaceExp) {
-        // System.out.println("----------------------------");
-        // System.out.println("VAR TO REPLACE: " + varToReplace);
-        // System.out.println("REPLACE EXP: " + replaceExp);
-        // System.out.println("THIS FUNCTION: " + this);
-        if(this.exp instanceof Function innerFunc) {
+        if(this.exp instanceof Function innerFunc && this.innerFunction) {
             innerFunc.setInnerFunction(true);
         }
         
@@ -57,46 +53,32 @@ public class Function implements Expression {
             if(this.exp instanceof Function func_exp) {
                 if(func_exp.exp instanceof Variable functionVariable) {
                     if(functionVariable.getID().equals(varToReplace.getID())) {
-                        // System.out.println("1");
                         return new Function(func_exp.var, replaceExp);
                     } else {
-                        // System.out.println("2");
                         return new Function(func_exp.var, func_exp.exp);
                     }
                 }
-                // System.out.println("3");
                 if(func_exp.exp instanceof Function innerInnerFunc) {
                     innerInnerFunc.setInnerFunction(true);
                 }
                 return new Function(func_exp.var, func_exp.exp.substitute(varToReplace, replaceExp));
             }
             if((this.exp instanceof Variable) && this.innerFunction) {
+                System.out.println("HERE");
+                System.out.println("this: " + this);
+                System.out.println("innerfnuctionstatus: " + this.innerFunction);
                 return this;
             }
+
+            if(this.exp instanceof Function f) {
+                f.setInnerFunction(false);
+            }
+
             Expression returned = (this.exp).substitute(varToReplace, replaceExp);
-            
-            // System.out.println("4");
             return returned;
         } else {
-            // System.out.println("5");      
-
-            // Function wegotthis = new Function(this.var, recurseUntilApp(this.exp).substitute(varToReplace, replaceExp));
             return new Function(this.var, this.exp.substitute(varToReplace, replaceExp));
-            
-            // return wegotthis;
         } 
-    }
-
-    public Expression recurseUntilApp(Expression a) {
-        if(a instanceof Function func) {
-            return new Function(func.getVar(), recurseUntilApp(func.getExp()));
-        } else if(a instanceof Variable) {
-            return a; // this might be wrong
-        } else {
-            Application app = (Application) a;
-            System.out.println("our application is: " + app);
-            return app.run();
-        }
     }
 
     private void syncVariableIDs(Expression exp, UUID id_to_set, String name_to_set_against) {

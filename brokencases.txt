@@ -47,16 +47,13 @@ and = λp.λq.p q p
 or = λp.λq.p p q
 xor = \p.\q.p (not q) q
 if = λb.λT.λF.((b T) F)
-
 0 = \f.\x.x    ; same as false
 succ = \n.\f.\x.f (n f x)
 1 = run succ 0
 2 = run succ 1
 3 = run + 2 1
 4 = run * 2 2
-
 5 = (λf.(λx.(f (f (f (f (f x)))))))
-
 6 = run pred (pred (succ (+ 2 5)))
 7 = run succ (succ 5)
 if = λb.λT.λF.((b T) F)

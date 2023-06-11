@@ -87,9 +87,9 @@ public class Parser {
 				if(preparsed_tokens.contains("run") && (preparsed_tokens.indexOf("run") == preparsed_tokens.indexOf("=") + 1)) {
 					Variable newAssignment = new Variable(preparsed_tokens.get(0));
 					exp = parse(new ArrayList<String>(preparsed_tokens.subList(preparsed_tokens.indexOf("run")+1, preparsed_tokens.size())));
-					variableMap.addVariable(newAssignment, exp.run());
-					System.out.println("[EVALUATED] Added " + exp.run() + " as " + newAssignment);
-					return exp.run();
+					variableMap.addVariable(newAssignment, executor.execute_expression(exp));
+					System.out.println("[EVALUATED] Added " + executor.execute_expression(exp) + " as " + newAssignment);
+					return executor.execute_expression(exp);
 				} else {
 					Variable newAssignment = new Variable(preparsed_tokens.get(0));
 					variableMap.addVariable(newAssignment, exp);
