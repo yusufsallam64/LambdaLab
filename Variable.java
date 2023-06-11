@@ -17,6 +17,14 @@ public class Variable implements Expression {
 		this.id = id;
 	}
 
+	public Expression substitute(Variable compare, Expression exp) {
+		if(compare.getID().equals(this.id)) {
+			return exp;
+		} else {
+			return this;
+		}
+	}
+	
 	public String toString() {
 		return name;
 	}

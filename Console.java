@@ -24,7 +24,8 @@ public class Console {
 			
 			try {
 				ArrayList<String> preparsed_tokens = parser.preparse(tokens);
-				
+				System.out.println("PREPARSED:" + preparsed_tokens);
+
 				if(preparsed_tokens.isEmpty()) {
 					input = cleanConsoleInput();
 					continue;

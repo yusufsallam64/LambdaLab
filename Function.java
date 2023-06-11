@@ -3,14 +3,20 @@ import java.util.UUID;
 public class Function implements Expression {
     private Variable var;
     private Expression exp;
-
+    private boolean innerFunction;
+    
     public Function(Variable var, Expression exp) {
         this.var = var;
         this.exp = exp;
+        this.innerFunction = false;
     }
 
     public String toString() {
         return "(λ" + var + "." + exp + ")";
+    }
+
+    public void setInnerFunction(boolean innerFunction) {
+        this.innerFunction = innerFunction;
     }
 
     public Variable getVar() {
@@ -24,14 +30,9 @@ public class Function implements Expression {
     public Expression run() {
         return this;
     }
- 
-    public Expression run(Expression exp) {
-        // before we run anything, we want to fix the identifiers of the variables
-        fixVariableIdentifiers(this);
-
-        Expression evaluated = substitute(this, exp, this.var, false);
-        return evaluated;
-    }
+    // run ((\x.\y.x) p)
+    // run ((\x.\p.\t.\h.\y.x) p)
+    // run ((\z.\y.x) p)
   /**
     * Carries out a singular substitution when running a function
     * @param  current  Current Expression -- We are substituting the things in this
@@ -39,98 +40,43 @@ public class Function implements Expression {
     * @param  varToReplace The given variable to be replaced
     * @return      Returns the final substituted expression
     */
-    private Expression substitute(Expression current, Expression replaceExp, Variable varToReplace, boolean insideFunction) {
-        System.out.println("FUNCTION: " + this);
-        // System.out.println("EXPRESSION: " + current);
-        // System.out.println("REPLACE EXPRESSION: " + replaceExp);
-        // System.out.println("VARIABLE TO REPLACE: " + varToReplace);
-        // System.out.println("----------");
-        if(current instanceof Variable) {
-            // if id matches, we know we have the right variable
-            if(((Variable) current).getID().equals(varToReplace.getID())) {
-                return replaceExp;
-            } else {
-                // if id doesn't match, leave current var alone
-                return current;
+    public Expression substitute(Variable varToReplace, Expression replaceExp) {
+        System.out.println("----------------------------");
+        System.out.println("VAR TO REPLACE: " + varToReplace);
+        System.out.println("REPLACE EXP: " + replaceExp);
+        System.out.println("THIS FUNCTION: " + this);
+        if(this.exp instanceof Function innerFunc) {
+            System.out.println("marking " + innerFunc + " as inner function" );
+            innerFunc.setInnerFunction(true);
+        }
+        if(varToReplace.getID().equals(this.var.getID())) {
+            if(this.exp instanceof Function func_exp) {
+                if(func_exp.exp instanceof Variable functionVariable) {
+                    if(functionVariable.getID().equals(varToReplace.getID())) {
+                        System.out.println("1");
+                        return new Function(func_exp.var, replaceExp);
+                    } else {
+                        System.out.println("2");
+                        return new Function(func_exp.var, func_exp.exp);
+                    }
+                }
+                System.out.println("3");
+                if(func_exp.exp instanceof Function innerInnerFunc) {
+                    innerInnerFunc.setInnerFunction(true);
+                }
+                return new Function(func_exp.var, func_exp.exp.substitute(varToReplace, replaceExp));
             }
-        } else if (current instanceof Application) {
-            Application currentApp = (Application) current;           
-            Expression leftside = currentApp.getLeft();
-            Expression rightside = currentApp.getRight();
-
-            // sub both sides of the app and return the result
-            Expression subbedApp = new Application(substitute(leftside, replaceExp, varToReplace, false), substitute(rightside, replaceExp, varToReplace, false)).run();
-
-            return subbedApp;
+            if((this.exp instanceof Variable) && this.innerFunction) {
+                return this;
+            }
+            Expression returned = (this.exp).substitute(varToReplace, replaceExp);
+            
+            System.out.println("4");
+            System.out.println("INNERFUNC " + this.innerFunction);
+            return returned;
         } else {
-            Function currentFn = (Function) current;
-            Expression currentFnExp = currentFn.exp;
-            if(currentFnExp instanceof Variable) { // somehow combine these two because that would solve basically all the problems we have
-                // when our function's exp is a var, follow rules for variables
-                // System.out.println("here");
-                // if( ((Variable) currentFnExp).getID().equals(varToReplace.getID()) ) {
-                //     return replaceExp;
-                // } else {
-                //     return currentFn;
-                // }
-
-                if( ((Variable) currentFnExp).getID().equals(varToReplace.getID()) ) {
-                    return replaceExp;
-                } else if ( currentFn.var.getID().equals(varToReplace.getID()) && (insideFunction == false) ){
-                    // System.out.println("CURRENT FN: " + currentFn);
-                    // System.out.println("VARTOREPLACE: " + varToReplace);
-                    return currentFnExp;
-                } else {
-                    return currentFn;
-                }
-
-                // if( currentFn.var.getID().equals(varToReplace.getID()) && ((Variable) currentFn.exp).getID().equals(currentFn.var.getID()) ){
-                //     return replaceExp;
-                // } else if (currentFn.var.getID().equals(varToReplace.getID()) && !((Variable) currentFn.exp).getID().equals(currentFn.var.getID())) {
-                //     return currentFnExp;
-                // } else {
-                //     return currentFn;
-                // }
-
-            } else if (currentFnExp instanceof Application) {
-                // when we have an application, sub left first, then deal with right
-                Application fnApp = (Application) currentFnExp;
-                Expression fnAppLeftside = fnApp.getLeft();
-                Expression fnAppRightside = fnApp.getRight();
-
-                Expression leftsideSubbed = substitute(fnAppLeftside, replaceExp, varToReplace, true);
-                Expression rightsideSubbed;
-                
-                if(fnAppRightside instanceof Function) {
-                    Function rightsideFn = (Function) fnAppRightside;
-                    rightsideSubbed = new Function(rightsideFn.var, substitute(rightsideFn.exp, replaceExp, varToReplace, true));
-                } else {
-                    rightsideSubbed = substitute(fnAppRightside, replaceExp, varToReplace, false);
-                }
-                
-                Expression substituted = new Application(leftsideSubbed, rightsideSubbed); // build a new application with the substituted sides
-
-                if(!currentFn.var.getID().equals(varToReplace.getID())) {
-                    return new Function(currentFn.var, substituted);
-                }
-                
-                return substituted;
-            } else if (currentFnExp instanceof Function) {
-                // case of fn inside fn
-                Function innerFn = (Function) currentFnExp; // get the inner function  --> \y.(\x.(x y))
-                // ignore the param to the inner function and continue with substituting the varToReplace
-                Expression evalInnerFn = new Function(innerFn.var, substitute(innerFn.exp, replaceExp, varToReplace, true)); 
-                
-                // if the id of the variable we want to replace is the same as the current function's var,
-                // we know this is the function we want to replace 
-                if(varToReplace.getID().equals(currentFn.getVar().getID())) {
-                    return evalInnerFn;
-                } else {
-                    return new Function(currentFn.var, evalInnerFn);
-                }
-            } else {
-                throw new RuntimeException("Something went wrong with substitution");
-            }
+            System.out.println("5");
+            return new Function(this.var, this.exp.substitute(varToReplace, replaceExp));
         }
     }
 
@@ -173,8 +119,8 @@ public class Function implements Expression {
         }
     }
 
-    private void fixVariableIdentifiers(Expression exp) {
-        syncVariableIDs(exp, this.var.getID(),this.var.toString());
+    public void fixVariableIdentifiers() {
+        syncVariableIDs(this, this.var.getID(),this.var.toString());
     }
 
     public void printExpression(Expression exp) {

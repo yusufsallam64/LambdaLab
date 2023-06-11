@@ -1,4 +1,3 @@
-
 public class Application implements Expression {
     private Expression left;
     private Expression right;
@@ -24,35 +23,25 @@ public class Application implements Expression {
     }
 
     public Expression run() {
-        System.out.println("APPLICATION: " + this);
-        if(left instanceof Function) {
-            Function func = (Function) left;
-            Expression returned = func.run(right);
-            return returned.run();
-        } else {
-            Expression leftexp = this.left.run();
+        System.out.println("currentapp: " + this);
 
-            if(leftexp instanceof Function) {
-                Function func = (Function) leftexp;
-                return func.run(this.right.run());
+        if(this.left instanceof Function) {
+            Function leftSide = (Function) this.left;
+            leftSide.fixVariableIdentifiers();
+            return leftSide.substitute(((Function) left).getVar(), this.getRight()).run();
+        }
+        else {
+            Application returnApp = new Application(this.left.run(), this.right.run());
+            if(returnApp.getLeft() instanceof Function) {
+                return returnApp.getLeft().substitute(((Function) returnApp.getLeft()).getVar(), returnApp.getRight()).run();
             } else {
-                Expression left_run_returned = leftexp.run();
-                if(left_run_returned instanceof Function) {
-                    return ((Function) leftexp.run()).run(this.right.run());
-                } // TODO --> something is funky with this
-
-                // else if (left_run_returned instanceof Application) { // this wrong fo sho
-                //     Application app = (Application) left_run_returned; 
-
-                //     return new Application(app.run(), this.right.run());
-                // }
-                
-                // TODO -- We need cases to check to see if we have an application then run the left and right i think
-                // else if ()
-
-                return new Application(leftexp.run(), this.right.run());
+                return returnApp;
             }
-        }       
+        }
+    }
+
+    public Expression substitute(Variable varToReplace, Expression replaceExp) {
+        return new Application(left.substitute(varToReplace, replaceExp), right.substitute(varToReplace, replaceExp));
     }
 
     public void printExpression(Expression exp) {

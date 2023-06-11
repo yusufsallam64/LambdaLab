@@ -6,22 +6,8 @@ generating numbers works except for:
 
 no number-tests work basically
 
-false = \f.\x.x
-true = λx.λy.x
-and = λp.λq.p q p
-or = λp.λq.p p q
-not = λp.p false true
-xor = \p.\q.p (not q) q
 
 
-if = λb.λT.λF.((b T) F)
-
-
-succ = \n.\f.\x.f (n f x)
-pred = λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
-+ = λm.λn.λf.λx.(m f) ((n f) x)
-* = λn.λm.λf.λx.n (m f) x
-- = λm.λn.(n pred) m
 
 
 0 = \f.\x.x    ; same as false
@@ -29,4 +15,83 @@ cons = λx.λy.λf.f x y
 car = λp.p true
 
 
-xor false true or something breaks i have no idea why
+NOTES::
+ALL XOR CASES BREAK BECAUSE XOR GETS ADDED IN WRONG
+xor = (λp.(λq.((p ((λp.((p (λf.(λx.x))) (λx.(λy.x)))) q)) q)))
+
+THE SUCC ONES FOR NUMBERS ALSO BREAKS, NOT SURE WHY
+
+
+
+PASTE IN:
+0=(λf.(λx.x))
+1=(λf.(λx.(f x)))
+2=(λf.(λx.(f (f x))))
+3=(λf.(λx.(f (f (f x)))))
+4=(λf.(λx.(f (f (f (f x))))))
+5=(λf.(λx.(f (f (f (f (f x)))))))
+6=(λf.(λx.(f (f (f (f (f (f x))))))))
+7=(λf.(λx.(f (f (f (f (f (f (f x)))))))))
+8=(λf.(λx.(f (f (f (f (f (f (f (f x))))))))))
+9=(λf.(λx.(f (f (f (f (f (f (f (f (f x)))))))))))
+10=(λf.(λx.(f (f (f (f (f (f (f (f (f (f x))))))))))))
+succ = \n.\f.\x.f (n f x)
+pred = λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
++ = λm.λn.λf.λx.(m f) ((n f) x)
+* = λn.λm.λf.λx.n (m f) x
+- = λm.λn.(n pred) m
+false = \f.\x.x
+true = λx.λy.x
+not = λp.p false true
+and = λp.λq.p q p
+or = λp.λq.p p q
+xor = \p.\q.p (not q) q
+if = λb.λT.λF.((b T) F)
+even? = λn.n not true
+odd? = \x.not (even? x)
+zero?=(λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x))))
+leq?=(λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n))))
+lt?=(λa.(λb.((λp.((p (λf.(λx.x))) (λx.(λy.x)))) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) b) a))))
+gt?=(λa.(λb.((λp.((p (λf.(λx.x))) (λx.(λy.x)))) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) a) b))))
+eq?=(λm.(λn.(((λp.(λq.((p q) p))) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) m) n)) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) n) m))))
+neq?=(λa.(λb.((λp.((p (λf.(λx.x))) (λx.(λy.x)))) (((λm.(λn.(((λp.(λq.((p q) p))) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) m) n)) (((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) n) m)))) a) b))))
+geq?=(λa.(λb.(((λm.(λn.((λn.((n (λx.(λf.(λx.x)))) (λx.(λy.x)))) (((λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m))) m) n)))) b) a))) 
+cons = λx.λy.λf.f x y
+car = λp.p true
+cdr = λp.p false
+null = \x.true
+
+
+3 = run + 2 1 --> breaks
+4 = run * 2 2 --> probably breaks idk
+
+BRANCHING::
+run (if (even? 2) Correct-Answer! WRONG-ANSWER!) --> breaks 
+run (if (odd? 5) Correct-Answer! WRONG-ANSWER!) --> breaks 
+
+zero? = \n.n (\x.false) true --> zero gets added wrong
+run (if (zero? (- 2 2)) Correct-Answer! WRONG-ANSWER!) --> idek 
+run (if (zero? (+ 0 1)) WRONG-ANSWER Correct-Answer!) --> idek 
+
+
+
+(((λx.(λy.(λf.((f x) y)))) C) (((λx.(λy.(λf.((f x) y)))) A) (((λx.(λy.(λf.((f x) y)))) T) (((λx.(λy.(λf.((f x) y)))) S) (λx.(λx.(λy.x)))))))
+
+
+pred=(λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))
+succ=(λn.(λf.(λx.(f ((n f) x)))))
++=(λm.(λn.(λf.(λx.((m f) ((n f) x))))))
+*=(λn.(λm.(λf.(λx.((n (m f)) x)))))
+-=(λm.(λn.((n (λn.(λf.(λx.(((n (λg.(λh.(h (g f))))) (λu.x)) (λu.u)))))) m)))
+0 = \f.\x.x    ; same as false
+1=(λf.(λx.(f x)))
+2=(λf.(λx.(f (f x))))
+
+
+
+
+
+
+
+0 = \f.\x.x    ; same as false
+succ = \n.\f.\x.f (n f x)

@@ -5,6 +5,10 @@ import java.util.ArrayList;
 public class Parser {
 	VariableMap variableMap = new VariableMap();
 
+	public VariableMap getVariableMap() {
+		return variableMap;
+	}
+
 	//find index of ( that matches with ) **RETURNS INDEX OF ( **
 	private int findPairedParenthesis(ArrayList<String> tokens, int idxOfParen) {
 		int count = 1; 
@@ -21,27 +25,43 @@ public class Parser {
 		return idx;
 	}
 
-	private int findPairedParenthesisClosing(ArrayList<String> tokens, int idxOfParen) {
-		int count = 1; 
-		int idx = idxOfParen;
-		while(count > 0 && idx < tokens.size()-1) {
-			idx++;
+	private void addLambdaParenthesis(ArrayList<String> tokens, int idx) {
+		int i = idx;
+		int count = 0;
+
+		while(idx < tokens.size()) {
 			if(tokens.get(idx).equals("(")) {
 				count++;
-			}
-			else if(tokens.get(idx).equals(")")) {
+			} else if(tokens.get(idx).equals(")")) {
 				count--;
+
+				if(count == -1) {
+					tokens.add(i, "(");
+					tokens.add(idx + 1, ")");
+					return;
+				}
 			}
+			idx++;
 		}
-		return idx;
+
+		if(count == 0) {
+			tokens.add(i, "(");
+			tokens.add(")");
+			return;
+		}
+		
+		System.out.println("ERROR IN PARENTHESIS");
+		return;
+		
 	}
 	
 	public Expression handleTokens(ArrayList<String> preparsed_tokens) throws ParseException {
 		Expression exp;
 
 		if(preparsed_tokens.get(0).equals("run")) {
-			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size())));
-			// System.out.println("Expression given: " + exp);
+			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size()))); // TODO --> add expression stuff in here
+			System.out.println("PREPARSED_TOKENS: " + preparsed_tokens);
+			System.out.println("Expression given: " + exp);
 
 			// just so that if running something gives a defined var, you return the name of that var 
 			Expression result = exp.run();
@@ -96,48 +116,29 @@ public class Parser {
 	}
 
 	public ArrayList<String> preparse(ArrayList<String> inputtokens) {
-		for(int i = inputtokens.size(); i --> 0;) {
-			if(i >= 1) {
-				if(inputtokens.get(i).equals("\\") && !(inputtokens.get(i-1).equals("("))) {
-					inputtokens.add(i, "(");
-
-					int indexofnextparen = inputtokens.subList(i, inputtokens.size()).indexOf(")") + i + 1;
-
-					if(inputtokens.subList(i, inputtokens.size()).indexOf(")") == -1) {
-						inputtokens.add(")");
-					} else {
-						// iffy about this branch, might have a bug?
-						inputtokens.add(indexofnextparen-1, ")");
-					}
-				}
-			} else {
-				if(inputtokens.get(0).equals("\\")) {
-					inputtokens.add(0, "(");
-
-					int indexofnextparen = findPairedParenthesisClosing(new ArrayList<String>(inputtokens.subList(i, inputtokens.size())), 0);
-
-					if(indexofnextparen == inputtokens.size()-1) {
-						inputtokens.add(")");
-					} else {
-						inputtokens.add(indexofnextparen-1, ")");
-					}		
-				}
+		for(int i = 0; i < inputtokens.size(); i++) {
+			if(inputtokens.get(i).equals("\\") && (i == 0 || (!inputtokens.get(i-1).equals("(") || i == 0))) {
+				addLambdaParenthesis(inputtokens, i);
 			}
 		}
-
+		
 		return inputtokens;
 	}
-
+	
 	/*
 	 * Turns a set of tokens into an expression.  Comment this back in when you're ready.
 	 */
-	// TODO --> Made it so that this fetches the variables for stuff, and if it isn't defined already then it just returns a new variable?
 	public Expression parse(ArrayList<String> tokens) throws ParseException {
+		System.out.println("tokens: " + tokens);
 		String curtoken = tokens.get(tokens.size()-1);
 
 		if(tokens.size() == 1) { //only one element, return variable
+			if(variableMap.getVariable(tokens.get(0)) != null) {
+				return variableMap.getVariable(tokens.get(0));
+			}
+		
 			return new Variable(curtoken); 
-		} else if(tokens.size() == 2) { //only two elements, return application of both
+		}  else if(tokens.size() == 2) { //only two elements, return application of both
 			Expression left;
 			Expression right;
 
@@ -174,7 +175,6 @@ public class Parser {
 		else {
 			Expression right;
 			if(variableMap.getVariable(curtoken) != null) {
-				// right = getVariable(new Variable(curtoken));
 				right = variableMap.getVariable(curtoken);
 			} else {
 				right = new Variable(curtoken);
