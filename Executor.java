@@ -1,13 +1,16 @@
 public class Executor {
     
     public Expression execute_expression(Expression exp) {
-        Expression returned_initial = exp.run();
-        System.out.println("we have gotten back: " + returned_initial);
-        
-        Expression fully_executed = LoopThroughExpression(returned_initial);
-        
-        System.out.println("after fully executing: " + fully_executed);
-        return fully_executed;
+        // Expression returned_initial = exp.run();
+
+        // TODO -> fjkdsafnh uiosagfudinfgheuiowqnrh438qnyr7843nhr834nhfiuoew
+        while(containsRedex(exp)) {
+            System.out.println("redex: " + exp);
+            exp = LoopThroughExpression(exp);
+            System.out.println("redexAFTER: " + exp);
+        }
+
+        return exp;
     }
 
 
@@ -16,12 +19,24 @@ public class Executor {
             return v;
         }
         if(e instanceof Application a) {
-            return LoopThroughApplications(a);
+            // TODO --> THSI FIXES IT KINDA JUST NEED TO FIGURE OUT WHY THE riGHT SIDE STILL ADDS RANDOM SHIT
+            while(containsRedex(a)) {
+                Expression aleft = LoopThroughExpression(a.getLeft());
+                Expression aright = LoopThroughExpression(a.getRight());
+                a = new Application(aleft, aright);
+                return a.run();
+            } // to go back comment out this if statement
+
+            Expression reta =  LoopThroughApplications(a);
+            // System.out.println("loop thru app returning: " + reta);
+            return reta;
         }
         return LoopThroughFunction((Function) e);
     }
 
     public Expression LoopThroughFunction(Function f) {
+        System.out.println("CALLED LTF: " + f);
+        // System.out.println("LOOPING THROUGH FUNCTION: " + f);
         if(f.getExp() instanceof Function fexp) {
             return new Function(f.getVar(), LoopThroughFunction(fexp));
         }
@@ -32,8 +47,11 @@ public class Executor {
     }
 
     public Expression LoopThroughApplications(Application a) {
-        if(a.getLeft() instanceof Variable && a.getRight() instanceof Variable) {
-            return a;
+        System.out.println("CALLED LTA: " + a);
+        if(a.getLeft() instanceof Function f) {
+            Expression e = f.substitute(f.getVar(), a.getRight());
+            // System.out.println("[SUBSTITU] Returning: " + e);
+            return LoopThroughExpression(e);
         }
         if(a.getLeft() instanceof Function f) {
             Expression e = a.getLeft().substitute(f.getVar(), a.getRight());
@@ -69,17 +87,22 @@ public class Executor {
     //     }
     // }
 
-    public void printExpression(Expression exp) {
-        if(exp instanceof Variable) {
-            System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
-        } else if (exp instanceof Function) {
-            System.out.println("Function: " + exp);
-            System.out.println("[Function Variable : " + ((Function) exp).getVar() + " : " + ((Function) exp).getVar().getID() + "]");
-            printExpression(((Function) exp).getExp());
-        } else if (exp instanceof Application) {
-            System.out.println("Application: " + exp);
-            printExpression(((Application) exp).getLeft());
-            printExpression(((Application) exp).getRight());
-        }
+        // TODO --> i firmly believe that this is a future soln/where the problem is
+        // if(a.getRight() instanceof Application rhsapp) {
+        //     Expression left = LoopThroughExpression(a.getLeft());
+        //     Expression right = LoopThroughExpression(a.getRight());
+        //     return new Application(left, right).run();
+        // } else {
+        //     Expression left = LoopThroughExpression(a.getLeft());
+        //     return new Application(left, a.getRight()).run();
+        // }
+        // System.out.println("LEFT: " + a.getLeft());
+        // System.out.println("RIGHT: " + a.getRight());
+        Expression ap = new Application(LoopThroughExpression(a.getLeft()), LoopThroughExpression(a.getRight())).run();
+ 
+        // Expression ap = new Application(LoopThroughExpression(a.getLeft()), a.getRight()).run();
+
+        System.out.println("[APPLICA] Returning: " + ap);
+        return ap;
     }
 }

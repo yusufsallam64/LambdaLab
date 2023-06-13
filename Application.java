@@ -23,18 +23,34 @@ public class Application implements Expression {
     }
 
     public Expression run() {
+        // System.out.println("[APPLICATION]: " + this);
         if(this.left instanceof Function) {
             Function leftSide = (Function) this.left;
             leftSide.fixVariableIdentifiers();
-            Expression whatwegotback = leftSide.substitute(((Function) left).getVar(), this.getRight()).run();
-            
+
+            Expression substituted = leftSide.substitute(((Function) left).getVar(), this.getRight());
+            Expression evalled = substituted.run();
+
+            // System.out.println("[EXPRESSION] PreSub: " + leftSide);
+            // System.out.println("[EVALUATED] EvalledSub: " + evalled);
+            Expression whatwegotback = evalled;
+            // System.out.println("[EXPRESSION] PostSub: " + whatwegotback);
+            // if(whatwegotback instanceof Function funcreturned) {
+            //     return recurseUntilApp(whatwegotback);
+            // }
+            // System.out.println("[APPLICARETU]: " + whatwegotback);
             return whatwegotback;
         }
         else {
             Application returnApp = new Application(this.left.run(), this.right.run());
             if(returnApp.getLeft() instanceof Function) {
-                return returnApp.getLeft().substitute(((Function) returnApp.getLeft()).getVar(), returnApp.getRight()).run();
+                Expression back = returnApp.getLeft().substitute(((Function) returnApp.getLeft()).getVar(), returnApp.getRight()).run();
+                // System.out.println("[REDEX] Returning: " + back);
+                // System.out.println("[APPLICARETU]: " + back);
+                return back;
             } else {
+                // System.out.println("[RECURSE] Returning: " + returnApp);
+                // System.out.println("[APPLICARETU]: " + returnApp);
                 return returnApp;
             }
         }
