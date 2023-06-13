@@ -1,8 +1,8 @@
 import java.util.UUID;
 
 public class Function implements Expression {
-    private Variable var;
-    private Expression exp;
+    public Variable var;
+    public Expression exp;
     public boolean innerFunction;
     
     public Function(Variable var, Expression exp) {
@@ -64,9 +64,6 @@ public class Function implements Expression {
                 return new Function(func_exp.var, func_exp.exp.substitute(varToReplace, replaceExp));
             }
             if((this.exp instanceof Variable) && this.innerFunction) {
-                System.out.println("HERE");
-                System.out.println("this: " + this);
-                System.out.println("innerfnuctionstatus: " + this.innerFunction);
                 return this;
             }
 
@@ -81,13 +78,22 @@ public class Function implements Expression {
         } 
     }
 
+   // (\h. (h x a (\h. h a)) x
+
     private void syncVariableIDs(Expression exp, UUID id_to_set, String name_to_set_against) {
-        if(exp instanceof Function) {
+        if(exp instanceof Function fnexp) {
             // if have a fn, we want to set the id of inner vars with the same name to the id of the fn var
             Function function = (Function) exp;
 
             // sync things inside the fn expression
+            UUID temp_id = function.var.getID();
+            String temp_name = function.var.toString();
+
             syncVariableIDs(function.exp, id_to_set, name_to_set_against);
+
+            if(function.var.toString().equals(name_to_set_against)) {
+                syncVariableIDs(function.exp, temp_id, temp_name);
+            }
 
             id_to_set = function.var.getID();
             name_to_set_against = function.var.toString();
@@ -115,16 +121,36 @@ public class Function implements Expression {
             }
         } else { // with app, just recurse left & right
             Application app = (Application) exp;
+
+            // if(app.getLeft() instanceof Function f) {
+            //     if(f.toString().equals(f))
+
+
+            // }
+
             syncVariableIDs(app.getLeft(), id_to_set, name_to_set_against);
             syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
         }
     }
 
     public void fixVariableIdentifiers() {
+        Function deepcopied = ((Function) DeepCopyExpression(this));
+        this.exp = deepcopied.exp;
+        this.var = deepcopied.var;
         syncVariableIDs(this, this.var.getID(),this.var.toString());
     }
 
-    
+    public Expression DeepCopyExpression(Expression e) {
+        if(e instanceof Application a) {
+			return new Application(DeepCopyExpression(a.left), DeepCopyExpression(a.right));
+        }
+        if(e instanceof Function f) {
+			return new Function(new Variable(f.var.toString()), DeepCopyExpression(f.exp));
+        }
+        // e must be variable 
+
+		return new Variable(((Variable) e).toString());
+    }
 }
 
 // false = \f.\x.x

@@ -1,6 +1,6 @@
 public class Application implements Expression {
-    private Expression left;
-    private Expression right;
+    public Expression left;
+    public Expression right;
 
     public Application(Expression left, Expression right) {
         assert left != null;
@@ -25,11 +25,23 @@ public class Application implements Expression {
     public Expression run() {
         // System.out.println("[APPLICATION]: " + this);
         if(this.left instanceof Function) {
+            //System.out.println("HITS THIS BRANCH");
+            //System.out.println("[APPLICATION] CURRENT: " + this);
+
             Function leftSide = (Function) this.left;
             leftSide.fixVariableIdentifiers();
 
+            //System.out.println("[LHS]: " + leftSide);
+            //System.out.println("[RHS]: " + this.right);
+
+            //printExpression(this);
+
             Expression substituted = leftSide.substitute(((Function) left).getVar(), this.getRight());
+            //System.out.println("[SUBSTITUTED]: " + substituted);
+
             Expression evalled = substituted.run();
+
+            //System.out.println("[EVALLED]: " + evalled);
 
             // System.out.println("[EXPRESSION] PreSub: " + leftSide);
             // System.out.println("[EVALUATED] EvalledSub: " + evalled);
@@ -43,6 +55,7 @@ public class Application implements Expression {
         }
         else {
             Application returnApp = new Application(this.left.run(), this.right.run());
+            // System.out.println("[APPLICATION] ReturningApp: " + returnApp);
             if(returnApp.getLeft() instanceof Function) {
                 Expression back = returnApp.getLeft().substitute(((Function) returnApp.getLeft()).getVar(), returnApp.getRight()).run();
                 // System.out.println("[REDEX] Returning: " + back);

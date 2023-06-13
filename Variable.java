@@ -1,12 +1,17 @@
 import java.util.UUID;
 
 public class Variable implements Expression {
-	private String name;
-	private UUID id;
+	public String name;
+	public UUID id;
 	
 	public Variable(String name) {
 		this.name = name;
 		this.id = UUID.randomUUID();
+	}
+
+	public Variable(String name, UUID id) {
+		this.name = name;
+		this.id = id;
 	}
 
 	public UUID getID() {
