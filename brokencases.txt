@@ -34,7 +34,6 @@ PASTE IN:
 9=(λf.(λx.(f (f (f (f (f (f (f (f (f x)))))))))))
 10=(λf.(λx.(f (f (f (f (f (f (f (f (f (f x))))))))))))
 
-5=(λf.(λx.(f (f (f (f (f x)))))))
 succ = \n.\f.\x.f (n f x)
 pred = λn.λf.λx.n (λg.λh.h (g f)) (λu.x) (λu.u)
 + = λm.λn.λf.λx.(m f) ((n f) x)

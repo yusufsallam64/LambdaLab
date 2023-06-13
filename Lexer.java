@@ -17,9 +17,9 @@ public class Lexer {
 	 */
 
 	// semi-colon excluded because we no longer treat it as a special token in the lexer
-	private final String regex = "()\\λ.=";
+	private final static String regex = "()\\λ.=";
 
-	public ArrayList<String> tokenize(String input) {
+	public static ArrayList<String> tokenize(String input) {
 		ArrayList<String> tokens = new ArrayList<String>();
 		StringBuilder currentstr = new StringBuilder();
 

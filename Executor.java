@@ -1,7 +1,4 @@
 public class Executor {
-    
-    private static int count;
-
     public Expression execute_expression(Expression exp) {
         //System.out.println("EXECUTING EXPRESSION: " + exp);
         // Expression returned_initial = exp.run();

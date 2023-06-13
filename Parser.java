@@ -59,7 +59,20 @@ public class Parser {
 		Executor executor = new Executor();
 		Expression exp;
 
-		if(preparsed_tokens.get(0).equals("run")) {
+		if(preparsed_tokens.get(0).equals("populate")) {
+			int num1 = Integer.parseInt(preparsed_tokens.get(1));
+			int num2 = Integer.parseInt(preparsed_tokens.get(2));
+
+			for(int i = num1; i <= num2; i++) {
+				String parsethis = "(\\f.(\\x." + "(f ".repeat(i) + "x" + ")".repeat(i) + "))";
+					
+				ArrayList<String> tokens = Lexer.tokenize(parsethis);
+
+				variableMap.addVariable(new Variable(Integer.toString(i)), executor.execute_expression(parse(tokens)));
+			}
+
+			return new Variable(Integer.toString(num2));
+		} else if(preparsed_tokens.get(0).equals("run")) {
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size()))); // TODO --> add expression stuff in here
 
 			// just so that if running something gives a defined var, you return the name of that var 
