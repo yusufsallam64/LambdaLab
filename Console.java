@@ -11,14 +11,13 @@ public class Console {
 	public static void main(String[] args) {
 		in = new Scanner (System.in);
 		
-		Lexer lexer = new Lexer();
 		Parser parser = new Parser();
 		
 		String input = cleanConsoleInput();  // see comment
 		
 		while (!input.equalsIgnoreCase("exit")) {
 			
-			ArrayList<String> tokens = lexer.tokenize(input);
+			ArrayList<String> tokens = Lexer.tokenize(input);
 
 			String output = "";
 			

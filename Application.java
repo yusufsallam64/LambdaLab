@@ -23,13 +23,14 @@ public class Application implements Expression {
     }
 
     public Expression run() {
-        // System.out.println("[APPLICATION]: " + this);
+        System.out.println("[APPLICATION]: " + this);
         if(this.left instanceof Function) {
             //System.out.println("HITS THIS BRANCH");
             //System.out.println("[APPLICATION] CURRENT: " + this);
 
             Function leftSide = (Function) this.left;
-            leftSide.fixVariableIdentifiers();
+            
+            leftSide.fixVariableIdentifiers(); // TODO --> i believe this is the bottleneck for everything
 
             //System.out.println("[LHS]: " + leftSide);
             //System.out.println("[RHS]: " + this.right);

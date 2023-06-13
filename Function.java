@@ -45,6 +45,8 @@ public class Function implements Expression {
     * @return      Returns the final substituted expression
     */
     public Expression substitute(Variable varToReplace, Expression replaceExp) {
+        System.out.println("SUBBING: " + varToReplace + " WITH: " + replaceExp + " IN: " + this);
+        printExpression(this);
         if(this.exp instanceof Function innerFunc && this.innerFunction) {
             innerFunc.setInnerFunction(true);
         }
@@ -75,6 +77,13 @@ public class Function implements Expression {
             return returned;
         } else {
             Expression subbed_exp = this.exp.substitute(varToReplace, replaceExp);
+
+            // TODO --> I ADDED THIS IF STATEMENT TO FIX THE BROKEN CONDITIONAL CASE, NEED TO TEST IF ANYTHING ELSE BREAKS WITH IT, if im not mistaken, this issue persists with other things such as applications and functions
+            if(subbed_exp instanceof Variable v && v.toString().equals(this.var.toString())) {
+                return new Function(this.var, this.var);
+            }
+            // END TODO
+
             return new Function(this.var, subbed_exp);
         } 
     }
@@ -82,7 +91,9 @@ public class Function implements Expression {
    // (\h. (h x a (\h. h a)) x
 
     private void syncVariableIDs(Expression exp, UUID id_to_set, String name_to_set_against) {
+        System.out.println("syncing: " + exp);
         if(exp instanceof Function fnexp) {
+            System.out.println("we are syncing a function: " + exp );
             // if have a fn, we want to set the id of inner vars with the same name to the id of the fn var
             Function function = (Function) exp;
 
@@ -101,7 +112,9 @@ public class Function implements Expression {
 
             // if exp is var, check ids
             if(function.exp instanceof Variable) {
+                System.out.println("we are syncing a variable inside a function: " + function);
                 if(((Variable) function.exp).toString().equals(function.var.toString())) {
+                    System.out.println("hits this for : " + function.var.toString() + " : " + function.var.getID() + " : " + function.exp + " : " + id_to_set);
                     ((Variable) function.exp).setID(id_to_set);
                 }
             } else if (function.exp instanceof Application) { // if app, sync left and right
@@ -117,17 +130,12 @@ public class Function implements Expression {
                 }
             }
         } else if(exp instanceof Variable) { // if we've recursed and hit a var, check if we need to set the id
+            System.out.println("we are syncing a variable: " + exp + " : " + ((Variable) exp).getID() + " : " + id_to_set + " : " + name_to_set_against);
             if(exp.toString().equals(name_to_set_against)) {
                 ((Variable) exp).setID(id_to_set);
             }
         } else { // with app, just recurse left & right
             Application app = (Application) exp;
-
-            // if(app.getLeft() instanceof Function f) {
-            //     if(f.toString().equals(f))
-
-
-            // }
 
             syncVariableIDs(app.getLeft(), id_to_set, name_to_set_against);
             syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
@@ -151,6 +159,20 @@ public class Function implements Expression {
         // e must be variable 
 
 		return new Variable(((Variable) e).toString());
+    }
+
+    public void printExpression(Expression exp) {
+        if(exp instanceof Variable) {
+            System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
+        } else if (exp instanceof Function) {
+            System.out.println("Function: " + exp);
+            System.out.println("[Function Variable : " + ((Function) exp).getVar() + " : " + ((Function) exp).getVar().getID() + "]");
+            printExpression(((Function) exp).getExp());
+        } else if (exp instanceof Application) {
+            System.out.println("Application: " + exp);
+            printExpression(((Application) exp).getLeft());
+            printExpression(((Application) exp).getRight());
+        }
     }
 }
 
