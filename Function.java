@@ -74,7 +74,8 @@ public class Function implements Expression {
             Expression returned = (this.exp).substitute(varToReplace, replaceExp);
             return returned;
         } else {
-            return new Function(this.var, this.exp.substitute(varToReplace, replaceExp));
+            Expression subbed_exp = this.exp.substitute(varToReplace, replaceExp);
+            return new Function(this.var, subbed_exp);
         } 
     }
 

@@ -64,11 +64,15 @@ public class Parser {
 			int num2 = Integer.parseInt(preparsed_tokens.get(2));
 
 			for(int i = num1; i <= num2; i++) {
-				String parsethis = "(\\f.(\\x." + "(f ".repeat(i) + "x" + ")".repeat(i) + "))";
-					
-				ArrayList<String> tokens = Lexer.tokenize(parsethis);
+				if(variableMap.getVariable(Integer.toString(i)) == null) {
+					String parsethis = "(\\f.(\\x." + "(f ".repeat(i) + "x" + ")".repeat(i) + "))";
+					ArrayList<String> tokens = Lexer.tokenize(parsethis);
+					Expression number_exp =  executor.execute_expression(parse(tokens));
+					variableMap.addVariable(new Variable(Integer.toString(i)), number_exp);
+				} else {
+					System.out.println("[WARN] " + Integer.toString(i) + " is already defined.");
+				}
 
-				variableMap.addVariable(new Variable(Integer.toString(i)), executor.execute_expression(parse(tokens)));
 			}
 
 			return new Variable(Integer.toString(num2));
