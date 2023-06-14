@@ -1,7 +1,10 @@
+// Yusuf Sallam and Matthew Lerman - ATiCS 22-23 Period 1
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class Application implements Expression {
+    // marked as public because we need reference not value
     public Expression left;
     public Expression right;
 
@@ -29,18 +32,15 @@ public class Application implements Expression {
         if(this.left instanceof Function) {
             Function leftSide = (Function) this.left;
             
-            leftSide.fixVariableIdentifiers(); // TODO --> i believe this is the bottleneck for everything
+            leftSide.fixVariableIdentifiers(); // TODO --> I believe this is the bottleneck for everything
 
-            Expression substituted = leftSide.substitute(((Function) left).getVar(), this.getRight());
-            Expression evalled = substituted.run();
-            Expression whatwegotback = evalled;
-            return whatwegotback;
-        }
-        else {
+            return leftSide.substitute(((Function) left).getVar(), this.getRight()).run();
+        } else {
             Application returnApp = new Application(this.left.run(), this.right.run());
-            if(returnApp.getLeft() instanceof Function) {
-                Expression back = returnApp.getLeft().substitute(((Function) returnApp.getLeft()).getVar(), returnApp.getRight()).run();
-                return back;
+            
+            // detects a redex after running both sides of app
+            if(returnApp.getLeft() instanceof Function lhsFn) {
+                return lhsFn.substitute(lhsFn.getVar(), returnApp.getRight()).run();
             } else {
                 return returnApp;
             }
@@ -51,6 +51,7 @@ public class Application implements Expression {
         return new Application(left.substitute(varToReplace, replaceExp), right.substitute(varToReplace, replaceExp));
     }
 
+    // debug function meant for QOL purposes
     public void printExpression(Expression exp) {
         if(exp instanceof Variable) {
             System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
@@ -65,17 +66,19 @@ public class Application implements Expression {
         }
     }
 
+    // returns whether a given variable name is already in use for alpha reductions
     public boolean checkForVariableName(Variable v, Expression e) {
         Set<String> var_names = new HashSet<String>();
         
         var_names = LoopTillVariable(e, var_names);
-
-        if(var_names.contains(v.toString())) {
+        // if(var_names.contains(v.toString())) { // not sure if this should be toString?
+        if(var_names.contains(v.getDisplayName())) {
             return true;
         }
         return false;
     }
 
+    // fetches the variables for a given expression
     public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
         if(e instanceof Function f) {
             LoopTillVariable(f.getVar(), variables);
@@ -87,8 +90,9 @@ public class Application implements Expression {
             LoopTillVariable(a.getRight(), variables);
         }
 
-        if(!variables.contains(e.toString())) {
-            variables.add(((Variable) e).toString());
+        // if(!variables.contains(e.toString())) { // not sure if this should be toString?
+        if(!variables.contains(((Variable) e).getDisplayName())) {
+            variables.add(((Variable) e).getDisplayName());
         };
         
         return variables;

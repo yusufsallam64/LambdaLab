@@ -1,0 +1,9 @@
+Matthew Lerman & Yusuf Sallam
+
+This lab was an 8, considering that we most likely made it a bit tougher for ourselves in how we structured our code. 
+
+Although I know I am biased, I would give myself a 100%. Me and Yusuf worked tirelessly to bug fix and perfect our code. While we are ending the lab with not all of the test cases working, me and Yusuf are both coming out as better coders and better friends. I learned a lot about working in a partnership, and the only thing I would change if I had to go back would be how we structured our code. I think planning better would have saved both of us a lot of stress. However, me and Yusuf worked really well together we each understood what we had to do and how do it. If I had to try to be unbiased, I wouldn't be able to. I have gained an emotional attachment to this lab after working so long on it, and I think I have never worked harder to perfect something more in my life. While we are a little bummed it isn't passing everything, we are very happy we fixed all major issues, such as deep-copying functions and running till all redexes are ran. After at least 25+ hours of debugging, it's safe to say I need a break from java after this. It was a fun ride, and I'm glad I got to experience it with my best friend. 
+
+Some test cases may take a while to run, but should return the right output. 
+
+Thank you for this experience, definitely something I won't forget. (couldn't be lazy!)

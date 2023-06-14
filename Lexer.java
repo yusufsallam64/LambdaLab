@@ -1,3 +1,4 @@
+// Yusuf Sallam and Matthew Lerman - ATiCS 22-23 Period 1
 
 import java.util.ArrayList;
 // import java.util.regex.Matcher;
@@ -41,7 +42,7 @@ public class Lexer {
 				}
 
 				tokens.add(symbol);
-			
+			// incredibly long just because macOS made it annoying to copy since ascii has 2 different values for space??
 			} else if( Integer.toHexString((int) symbol.charAt(0)).equals("a0") || Integer.toHexString((int) symbol.charAt(0)).equals("20") || symbol.equals("\n") || symbol.equals("\t")) {
 				if(!currentstr.isEmpty()) {
 					tokens.add(currentstr.toString());

@@ -1,3 +1,13 @@
+// Yusuf Sallam and Matthew Lerman - ATiCS 22-23 Period 1
+
+/*
+ * 
+ * This class was designed solely because we realized that we needed a way to access the final results of expressions we have run
+ * 
+ * Predominantly, this serves solely as a wrapper around ".run()", and goes through all expressions returned to ensure that they are fully simplified
+ * 
+ */
+
 public class Executor {
 
     //Execute a given expression
@@ -9,7 +19,7 @@ public class Executor {
         return exp;
     }
 
-    //Return whether a given expression contains a REDEX
+    //Return whether a given expression contains a redex
     public Boolean containsRedex(Expression e) {
         if(e instanceof Variable) {
             return false;
@@ -49,8 +59,6 @@ public class Executor {
         return LoopThroughFunction((Function) e);
     }
 
-
-    // Loop Through function 
     public Expression LoopThroughFunction(Function f) {
         if(f.getExp() instanceof Function fexp) {
             return new Function(f.getVar(), LoopThroughFunction(fexp));
@@ -62,7 +70,7 @@ public class Executor {
         return new Function(f.getVar(), LoopThroughExpression(f.getExp()));
     }
  
-    //Loop throgugh Application until a REDEX is found, substitute when it is
+    //Loop through Application until a redex is found, substitute when it is
     public Expression LoopThroughApplications(Application a) {
         if(a.getLeft() instanceof Function f) {
             Expression e = f.substitute(f.getVar(), a.getRight());

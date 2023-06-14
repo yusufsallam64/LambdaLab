@@ -1,6 +1,12 @@
+// Yusuf Sallam and Matthew Lerman - ATiCS 22-23 Period 1
+
 import java.util.HashMap;
 import java.util.Map.Entry;
-
+/*
+ * 
+ * This class is responsible for maintaining and managing the defined variables as the lab is running
+ * 
+ */
 public class VariableMap {
     private HashMap<Variable, Expression> variableMap = new HashMap<Variable, Expression>();
 
@@ -16,26 +22,14 @@ public class VariableMap {
 	}
 
 	public Expression getVariable(Variable v) {
-		Expression var_value = getVariable(v.toString());
-		//printExpression(var_value);
-		//System.out.println("----------------------------------------------");
-		return var_value;
+		return getVariable(v.toString());
 	}
 
 	// this is kinda hacky, but it makes it easier to get stuff from varmap
 	public Expression getVariable(String v) {
 		for(Entry<Variable, Expression> entry : variableMap.entrySet()) {
 			if(entry.getKey().toString().equals(v)) {
-				// System.out.println("getting var: " + v);
-				// System.out.println("value: " + entry.getValue());
-				// System.out.println("PRE-----------------------------");
-				// printExpression(entry.getValue());
-
-				Expression deep_copied = DeepCopyExpression(entry.getValue());
-				// System.out.println("post");
-				// printExpression(deep_copied);
-				// System.out.println();
-				return deep_copied;
+				return DeepCopyExpression(entry.getValue()); // whenever we get a variable from here, we want the deepcopied version of it
 			}
 		}
 
@@ -43,10 +37,10 @@ public class VariableMap {
 	}
 
 	public Expression getValue(Variable v) {
-		return DeepCopyExpression(variableMap.get(v));
+		return DeepCopyExpression(variableMap.get(v)); // deep copies should always be returned
 	}
 
-	// this works but like not too important
+	// this works but like not too important for the lab, just makes it easier in Parser.java
 	public Variable getVarByExp(Expression exp) {
 		for(Entry<Variable, Expression> entry : variableMap.entrySet()) {
 			if(entry.getValue().toString().equals(exp.toString())) {
@@ -57,7 +51,7 @@ public class VariableMap {
 		return null;
 	}
 
-
+	// returns a new copy of the expression with all the variables given refreshed IDs
 	public Expression DeepCopyExpression(Expression e) {
         if(e instanceof Application a) {
 			return new Application(DeepCopyExpression(a.left), DeepCopyExpression(a.right));
@@ -65,16 +59,10 @@ public class VariableMap {
         if(e instanceof Function f) {
 			return new Function(new Variable(f.var.toString()), DeepCopyExpression(f.exp));
         }
-        // e must be variable 
 
 		return new Variable(((Variable) e).toString());
     }
 	
-    // private Variable ChangeID(Variable v) {
-    //     v.setID(UUID.randomUUID());
-	// 	return v;
-    // }
-
 	public void printExpression(Expression exp) {
         if(exp instanceof Variable) {
             System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
@@ -87,5 +75,5 @@ public class VariableMap {
             printExpression(((Application) exp).getLeft());
             printExpression(((Application) exp).getRight());
         }
-    } //(115/1.3)
+    }
 }

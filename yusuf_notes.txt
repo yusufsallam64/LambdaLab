@@ -1,0 +1,18 @@
+Matthew Lerman & Yusuf Sallam
+
+Rating: 6/10
+
+Time Estimate: ~20-30 hours
+Partner Time Estimate: Also ~20-30 hours
+
+Self Grade: 100
+
+Okay, so, honestly, my rating for the lab is slightly on the easier side than I actually found it (I probably found it more realistically around an 8), but I believe that there were definitely some factors that made it harder for me personally.
+With regards to our outputs and the test cases that pass, admittedly, they don't all pass (never got to experience the power of Y Combinator sadly), but I believe that the bulk majority succeeding is definitely something I am proud of, even if some things such as the extra credit of run - 18 13 takes like 5 minutes to run. 
+For me, this lab was kind of timed in a bit of an unfortunate time, as the weekend before it was due and the time leading up to it, I was predominantly preparing for the upcoming CTF and I was hard at work developing the platform, so I wasn't able to actually sit down and dedicate as much time to this at the start as I would have liked. Still, I believe that I put in a lot of effort, especially during my late-day spree, and that both Matt and I were able to come up with a project we're both pretty proud of (and personally, I do think I'm going to end up coming back to this and optimizing/fixing the random bug(s?) we have remaining).
+I do not think I have ever worked as hard on a lab in CS, and quite honestly, I don't think that any of my projects as of yet have been as challenging as how this lab was, but I believe that was also primarily because debugging this was a nightmare since everything we built was recursive, and there is not a very nice way to implement an "algebra" mode with how we structured the lab. Honestly, I think that the main gripe I have with what we made was that we may have went in at times and started coding instead of planning ahead, which we ended up learning towards the end when it was becoming slightly too late to rewrite a lot of our stuff.
+With regards to how much Matt did, I have got to say that we both worked hand in hand to come up with this final project, and that basically every line of code was the product of peer programming and live-sharing together. I genuinely do not think I would have been able to tolerate this lab with anyone other than Matt, and if it were anyone but him I think I may have actually ended up hating my partner, but luckily, I do not hate Matt, and I think that this lab actually managed to bring us closer together in a sense! 
+Just from looking at how much I learned and the effort I put in, I think that a 100 would be fitting also just because (I think?) there is only one bug remaining in our code, aside from the necessary optimizations, and just based on the time constraints and situation I was under, I think I put in a surprisingly satisfying amount of effort in.
+
+Also, for the extra credit, as a heads up, run - 18 13 takes like 5-10 minutes to run (I had to sit there and hope it worked it was bad), but I promise that it works on my machine (I hope it works on yours too!), but also I believe that all of the Y-Combinator stuff is just an infinite loop because of our issue with the one if statement.
+Some parts of the code are slightly spaghetti-like, but there is nothing that is absolutely unreadable, and I am more or less happy with the code-style around the lab (but I definitely do want to refactor and improve if I had more time).

@@ -1,9 +1,11 @@
+// Yusuf Sallam and Matthew Lerman - ATiCS 22-23 Period 1
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class Function implements Expression {
-    public static int counter_alpha_redux_postfix = 0;
+    public static int counter_alpha_redux_postfix = 0; // allows us to relatively easily assign unique alpha reduction names
     public Variable var;
     public Expression exp;
     public boolean innerFunction;
@@ -18,6 +20,7 @@ public class Function implements Expression {
         return "(λ" + var + "." + exp + ")";
     }
 
+    // helper function that allows us to properly detect when variable IDs should change and when function variables should be discarded
     public void setInnerFunction(boolean innerFunction) {
         this.innerFunction = innerFunction;
     }
@@ -38,7 +41,7 @@ public class Function implements Expression {
         return this;
     }
 
-    //Updates names of variables in an expression, given a variable
+    // Updates displaynames of variables in an expression, given a variable to replace and an expression to replace in
     private Expression updateVariableNames(Variable varToReplace, Expression e) {
         if(e instanceof Application a) {
 			return new Application(updateVariableNames(varToReplace, a.left), updateVariableNames(varToReplace, a.right));
@@ -50,18 +53,18 @@ public class Function implements Expression {
 
 		if(e instanceof Variable v) {
             if(v.getID().equals(varToReplace.getID())) {
-                v.displayname = v.displayname + Integer.toString(counter_alpha_redux_postfix);
+                v.displayname = v.displayname + Integer.toString(counter_alpha_redux_postfix); // displayname is used as a consequence of how we structured everything with IDs earlier
             }
         }
         
         return ((Variable) e);
     }
 
-    //Function to Run Alphareductions 
+    //Function to carry out alpha reductions on a given expression
     public Expression AlphaReduction(Expression e, Expression rightSide) {
         if(e instanceof Function f) {
             if(checkForVariableName(f.var, rightSide)) {
-                counter_alpha_redux_postfix++;
+                counter_alpha_redux_postfix++; // we know that we need to assign a unique name if this is already in use by the right side
                 Function return_f = (Function) updateVariableNames(f.var, f);
                 return return_f;
             }
@@ -85,90 +88,68 @@ public class Function implements Expression {
     * 
     */
     public Expression substitute(Variable varToReplace, Expression replaceExp) {
-        AlphaReduction(this, replaceExp);
+        AlphaReduction(this, replaceExp); // before we do anything, just alpha reduce!
 
-        if(this.exp instanceof Function innerFunc && this.innerFunction) {
-            innerFunc.setInnerFunction(true);
-        }
+        if(this.exp instanceof Function innerFunc && this.innerFunction) innerFunc.setInnerFunction(true);
         
-        if(varToReplace.getID().equals(this.var.getID())) {
+        if(varToReplace.getID().equals(this.var.getID())) { // we know we need to substitute this function's body
             if(this.exp instanceof Function func_exp) {
                 if(func_exp.exp instanceof Variable functionVariable) {
-                    if(functionVariable.getID().equals(varToReplace.getID())) {
-                        return new Function(func_exp.var, replaceExp);
-                    } else {
-                        return new Function(func_exp.var, func_exp.exp);
-                    }
+                    if(functionVariable.getID().equals(varToReplace.getID())) return new Function(func_exp.var, replaceExp);
+
+                    return new Function(func_exp.var, func_exp.exp);
                 }
-                if(func_exp.exp instanceof Function innerInnerFunc) {
-                    innerInnerFunc.setInnerFunction(true);
-                }
+
+                if(func_exp.exp instanceof Function innerInnerFunc) innerInnerFunc.setInnerFunction(true);
+                
                 return new Function(func_exp.var, func_exp.exp.substitute(varToReplace, replaceExp));
             }
-            if((this.exp instanceof Variable) && this.innerFunction) {
-                return this;
-            }
 
-            if(this.exp instanceof Function f) {
-                f.setInnerFunction(false);
-            }
+            if((this.exp instanceof Variable) && this.innerFunction) return this;
 
-            Expression returned = (this.exp).substitute(varToReplace, replaceExp);
-            return returned;
+            if(this.exp instanceof Function f) f.setInnerFunction(false);
+
+            return this.exp.substitute(varToReplace, replaceExp);
         } else {
             Expression subbed_exp = this.exp.substitute(varToReplace, replaceExp);
-
-            if(subbed_exp instanceof Variable v && v.toString().equals(this.var.toString())) {
-                return new Function(this.var, this.var);
-            }
+            if((subbed_exp instanceof Variable v) && v.toString().equals(this.var.toString())) return new Function(this.var, this.var);
             
             return new Function(this.var, subbed_exp);
         } 
     }
 
-    //Set corresponding variable IDs in functions to the ID of the function's variable
+    // Set corresponding variable IDs in functions to the ID of the function's variable
+    // Essentially sorts out all of the variables and connects everything together
     private void syncVariableIDs(Expression exp, UUID id_to_set, String name_to_set_against) {
-        if(exp instanceof Function fnexp) {
-            // if have a fn, we want to set the id of inner vars with the same name to the id of the fn var
-            Function function = (Function) exp;
-
-            // sync things inside the fn expression
+        if(exp instanceof Function function) {
             UUID temp_id = function.var.getID();
             String temp_name = function.var.toString();
 
             syncVariableIDs(function.exp, id_to_set, name_to_set_against);
 
-            if(function.var.toString().equals(name_to_set_against)) {
-                syncVariableIDs(function.exp, temp_id, temp_name);
-            }
+            // if name conflict, then inner fn's var takes precedence
+            if(function.var.toString().equals(name_to_set_against)) syncVariableIDs(function.exp, temp_id, temp_name);
 
             id_to_set = function.var.getID();
             name_to_set_against = function.var.toString();
 
             // if exp is var, check ids
-            if(function.exp instanceof Variable) {
-                if(((Variable) function.exp).toString().equals(function.var.toString())) {
-                    ((Variable) function.exp).setID(id_to_set);
-                }
-            } else if (function.exp instanceof Application) { // if app, sync left and right
-                Application app = (Application) function.exp;
+            if(function.exp instanceof Variable var_exp) {
+                if(var_exp.toString().equals(function.var.toString())) var_exp.setID(id_to_set);
+            } else if (function.exp instanceof Application app) { // if app, sync left and right
                 syncVariableIDs(app.getLeft(), id_to_set, name_to_set_against);
                 syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
-            } else if (function.exp instanceof Function) { // if fn inside fn, sync outer fn var but if name conflict, then inner fn's var takes precedence               
-                Function func = (Function) function.exp;
+            } else if (function.exp instanceof Function func) { // if fn inside fn, sync outer fn var but if name conflict, then inner fn's var takes precedence like before            
                 if(func.var.toString().equals(name_to_set_against)) {
                     syncVariableIDs(func.exp, func.var.getID(), name_to_set_against);
                 } else {
                     syncVariableIDs(func.exp, id_to_set, name_to_set_against);
                 }
             }
-        } else if(exp instanceof Variable) { // if we've recursed and hit a var, check if we need to set the id
-            if(exp.toString().equals(name_to_set_against)) {
-                ((Variable) exp).setID(id_to_set);
-            }
-        } else { // with app, just recurse left & right
+        } else if(exp instanceof Variable var) { // if we've recursed and hit a var, check if we need to set the id
+            if(var.toString().equals(name_to_set_against)) var.setID(id_to_set);
+        } else {                                 // with app, just recurse left & right
             Application app = (Application) exp;
-
             syncVariableIDs(app.getLeft(), id_to_set, name_to_set_against);
             syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
         }
@@ -187,14 +168,12 @@ public class Function implements Expression {
         return false;
     }
 
-    //Loop to create list of variables in given expression
+    // Loop to create list of variables in given expression
     public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
         if(e instanceof Function f) {
             Set<String> temp = new HashSet<String>();
             temp.addAll(LoopTillVariable(f.getVar(), variables));
             temp.addAll(LoopTillVariable(f.getExp(), variables));
-            // LoopTillVariable(f.getVar(), variables);
-            // LoopTillVariable(f.getExp(), variables);
             return temp;
 
         }
@@ -235,7 +214,7 @@ public class Function implements Expression {
     }
 
 
-    //Nicer way to print Functions
+    // Nicer way to print Functions
     public void printExpression(Expression exp) {
         if(exp instanceof Variable) {
             System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
@@ -250,12 +229,3 @@ public class Function implements Expression {
         }
     }
 }
-
-// false = \f.\x.x
-// true = λx.λy.x
-// and = λp.λq.p q p
-// run and false false
-
-// cons = λx.λy.λf.f x y
-// run (cons A B)
-// should give > (λf.((f A) B))

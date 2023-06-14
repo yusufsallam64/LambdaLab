@@ -1,10 +1,12 @@
+// Yusuf Sallam and Matthew Lerman - ATiCS 22-23 Period 1
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class Variable implements Expression {
 	public String name;
-    public String displayname;
+    public String displayname; // added to support true alpha reductions
 	public UUID id;
 	
 	public Variable(String name) {
@@ -28,11 +30,8 @@ public class Variable implements Expression {
 	}
 
 	public Expression substitute(Variable compare, Expression exp) {
-		if(compare.getID().equals(this.id)) {
-			return exp;
-		} else {
-			return this;
-		}
+		if(compare.getID().equals(this.id)) return exp;
+        return this;
 	}
 	
 	public String toString() {
@@ -43,10 +42,11 @@ public class Variable implements Expression {
         return displayname;
     }
 
-	public Expression run() {
+	public Expression run() { // vars just return themselves
 		return this;
 	}
 	
+    // checks if a variable name is within a given expression
 	public boolean checkForVariableName(Variable v, Expression e) {
         Set<String> var_names = new HashSet<String>();
         
@@ -58,6 +58,7 @@ public class Variable implements Expression {
         return false;
     }
 
+    // same function as in Function.java
     public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
         if(e instanceof Function f) {
             LoopTillVariable(f.getVar(), variables);
@@ -89,5 +90,4 @@ public class Variable implements Expression {
             printExpression(((Application) exp).getRight());
         }
     }
-	// public 
 }
