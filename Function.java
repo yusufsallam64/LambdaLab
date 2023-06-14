@@ -49,7 +49,7 @@ public class Function implements Expression {
 
 		if(e instanceof Variable v) {
             if(v.getID().equals(varToReplace.getID())) {
-                v.name = v.name + Integer.toString(counter_alpha_redux_postfix);
+                v.displayname = v.displayname + Integer.toString(counter_alpha_redux_postfix);
             }
         }
         

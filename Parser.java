@@ -72,15 +72,11 @@ public class Parser {
 				} else {
 					System.out.println("[WARN] " + Integer.toString(i) + " is already defined.");
 				}
-
 			}
 
 			return new Variable(Integer.toString(num2));
 		} else if(preparsed_tokens.get(0).equals("run")) {
 			exp = parse(new ArrayList<String>(preparsed_tokens.subList(1, preparsed_tokens.size()))); // TODO --> add expression stuff in here
-
-			// just so that if running something gives a defined var, you return the name of that var 
-			// Expression result = exp.run();
 
 			Expression result = executor.execute_expression(exp);
 			Variable corresponding_var = variableMap.getVarByExp(result);
@@ -88,7 +84,7 @@ public class Parser {
 			if(corresponding_var != null) {
 				return corresponding_var;
 			} else {
-				return result;
+				return GetDisplayNames(result);
 			}
 			// return exp.run();
 		} else if(preparsed_tokens.contains("=")) {
@@ -125,11 +121,11 @@ public class Parser {
 					Expression associated_exp = variableMap.getVariable(definedVar);
 					return associated_exp;
 				} else {
-					return definedVar;
+					return GetDisplayNames(definedVar);
 				}
 			}
 
-			return exp;
+			return GetDisplayNames(exp);
 		}
 	}
 
@@ -199,5 +195,17 @@ public class Parser {
 
 			return new Application(parse(new ArrayList<String>(tokens.subList(0, tokens.size()-1))), right);
 		}
+	}
+
+	public Expression GetDisplayNames(Expression exp) {
+		if(exp instanceof Application a) {
+			return new Application(GetDisplayNames(a.left), GetDisplayNames(a.right));
+		} else if(exp instanceof Function f) {
+			return new Function(new Variable(f.var.getDisplayName()), GetDisplayNames(f.exp));
+		} else if(exp instanceof Variable v) {
+			return new Variable(v.getDisplayName());
+		}
+
+		return null;
 	}
 }

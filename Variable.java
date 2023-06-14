@@ -9,11 +9,13 @@ public class Variable implements Expression {
 	
 	public Variable(String name) {
 		this.name = name;
+        this.displayname = name;
 		this.id = UUID.randomUUID();
 	}
 
 	public Variable(String name, UUID id) {
 		this.name = name;
+        this.displayname = name;
 		this.id = id;
 	}
 
@@ -36,6 +38,10 @@ public class Variable implements Expression {
 	public String toString() {
 		return name;
 	}
+
+    public String getDisplayName() {
+        return displayname;
+    }
 
 	public Expression run() {
 		return this;

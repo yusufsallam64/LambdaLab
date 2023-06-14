@@ -49,7 +49,6 @@ public class Console {
 	}
 
 	
-	
 	/*
 	 * Collects user input, and ...
 	 * ... does a bit of raw string processing to (1) strip away comments,  
