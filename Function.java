@@ -38,6 +38,7 @@ public class Function implements Expression {
         return this;
     }
 
+    //Updates names of variables in an expression, given a variable
     private Expression updateVariableNames(Variable varToReplace, Expression e) {
         if(e instanceof Application a) {
 			return new Application(updateVariableNames(varToReplace, a.left), updateVariableNames(varToReplace, a.right));
@@ -55,7 +56,8 @@ public class Function implements Expression {
         
         return ((Variable) e);
     }
-    
+
+    //Function to Run Alphareductions 
     public Expression AlphaReduction(Expression e, Expression rightSide) {
         if(e instanceof Function f) {
             if(checkForVariableName(f.var, rightSide)) {
@@ -116,18 +118,15 @@ public class Function implements Expression {
         } else {
             Expression subbed_exp = this.exp.substitute(varToReplace, replaceExp);
 
-            // TODO --> I ADDED THIS IF STATEMENT TO FIX THE BROKEN CONDITIONAL CASE, NEED TO TEST IF ANYTHING ELSE BREAKS WITH IT, if im not mistaken, this issue persists with other things such as applications and functions
             if(subbed_exp instanceof Variable v && v.toString().equals(this.var.toString())) {
                 return new Function(this.var, this.var);
             }
-            // TODO --> END TODO
-
+            
             return new Function(this.var, subbed_exp);
         } 
     }
 
-   // (\h. (h x a (\h. h a)) x
-
+    //Set corresponding variable IDs in functions to the ID of the function's variable
     private void syncVariableIDs(Expression exp, UUID id_to_set, String name_to_set_against) {
         if(exp instanceof Function fnexp) {
             // if have a fn, we want to set the id of inner vars with the same name to the id of the fn var
@@ -175,6 +174,8 @@ public class Function implements Expression {
         }
     }
 
+
+    //Check if a given variable name exists in an expression
     public boolean checkForVariableName(Variable v, Expression e) {
         Set<String> var_names = new HashSet<String>();
         
@@ -186,6 +187,7 @@ public class Function implements Expression {
         return false;
     }
 
+    //Loop to create list of variables in given expression
     public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
         if(e instanceof Function f) {
             Set<String> temp = new HashSet<String>();
@@ -212,6 +214,7 @@ public class Function implements Expression {
     }
 
 
+    // Deep copy given function and Sync variable IDs
     public void fixVariableIdentifiers() {
         Function deepcopied = ((Function) DeepCopyExpression(this));
         this.exp = deepcopied.exp;
@@ -219,6 +222,7 @@ public class Function implements Expression {
         syncVariableIDs(this, this.var.getID(),this.var.toString());
     }
 
+    //Create a copy of a function with all IDs for variable changed
     public Expression DeepCopyExpression(Expression e) {
         if(e instanceof Application a) {
 			return new Application(DeepCopyExpression(a.left), DeepCopyExpression(a.right));
@@ -231,7 +235,7 @@ public class Function implements Expression {
     }
 
 
-
+    //Nicer way to print Functions
     public void printExpression(Expression exp) {
         if(exp instanceof Variable) {
             System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");

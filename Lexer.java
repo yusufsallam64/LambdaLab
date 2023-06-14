@@ -19,6 +19,7 @@ public class Lexer {
 	// semi-colon excluded because we no longer treat it as a special token in the lexer
 	private final static String regex = "()\\λ.=";
 
+
 	public static ArrayList<String> tokenize(String input) {
 		ArrayList<String> tokens = new ArrayList<String>();
 		StringBuilder currentstr = new StringBuilder();
@@ -40,7 +41,7 @@ public class Lexer {
 				}
 
 				tokens.add(symbol);
-			// right now, has issue with two different space characters because of ASCII sets, so need to check two separate space equalities using hex codes
+			
 			} else if( Integer.toHexString((int) symbol.charAt(0)).equals("a0") || Integer.toHexString((int) symbol.charAt(0)).equals("20") || symbol.equals("\n") || symbol.equals("\t")) {
 				if(!currentstr.isEmpty()) {
 					tokens.add(currentstr.toString());

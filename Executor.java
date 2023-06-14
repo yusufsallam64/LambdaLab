@@ -1,18 +1,15 @@
 public class Executor {
-    public Expression execute_expression(Expression exp) {
-        //System.out.println("EXECUTING EXPRESSION: " + exp);
-        // Expression returned_initial = exp.run();
 
-        // TODO -> fjkdsafnh uiosagfudinfgheuiowqnrh438qnyr7843nhr834nhfiuoew
+    //Execute a given expression
+    public Expression execute_expression(Expression exp) {
         while(containsRedex(exp)) {
-            //System.out.println("redex: " + exp);
             exp = LoopThroughExpression(exp.run());
-            //System.out.println("redexAFTER: " + exp);
         }
 
         return exp;
     }
 
+    //Return whether a given expression contains a REDEX
     public Boolean containsRedex(Expression e) {
         if(e instanceof Variable) {
             return false;
@@ -32,75 +29,43 @@ public class Executor {
         return false;
     }
 
+
     public Expression LoopThroughExpression(Expression e) {
-        //System.out.println("LOOPSTHROUGHEXPCOUNT: " + count++);
         if(e instanceof Variable v) {
-            //System.out.print(count++ + " ");
-            //System.out.println("VAREXPRET: " + v);
             return v;
         }
         if(e instanceof Application a) {
-            // TODO --> THSI FIXES IT KINDA JUST NEED TO FIGURE OUT WHY THE riGHT SIDE STILL ADDS RANDOM SHIT
             if(containsRedex(a)) {
                 Expression aleft = LoopThroughExpression(a.getLeft());
                 Expression aright = LoopThroughExpression(a.getRight());
                 a = new Application(aleft, aright);
-
-                //System.out.println("CNTAINRDXAPP WITHOUT RUNNING: " + a);
-
-                // print out the type of aleft and a right
-                //System.out.println("CLASSLEFT: " + aleft.getClass());
-                //System.out.println("CLASSRIGHT: " + aright.getClass());
-
                 Expression ran = a.run();
-                //System.out.print(count++ + " ");
-                //System.out.println("CNTAINRDXAPP: " + ran);
                 return ran;
-            } // to go back comment out this if statement
+            } 
 
             Expression reta =  LoopThroughApplications(a);
-            //System.out.print(count++ + " ");
-            //System.out.println("loop thru app returning: " + reta);
             return reta;
         }
         return LoopThroughFunction((Function) e);
     }
 
+
+    // Loop Through function 
     public Expression LoopThroughFunction(Function f) {
-        // System.out.println("LOOPING THROUGH FUNCTION: " + f);
-        // System.out.println("LOOPSTHROUGHFNCOUNT: " + count++);
-        //System.out.println("CALLS LTF ON: " + f);
         if(f.getExp() instanceof Function fexp) {
-            Expression idk = new Function(f.getVar(), LoopThroughFunction(fexp));
-            //System.out.print(count++ + " ");
-            //System.out.println("RETURNING: " + idk);
-            return idk;
+            return new Function(f.getVar(), LoopThroughFunction(fexp));
         }
         if(f.getExp() instanceof Variable) {
-            // System.out.println("we have a variable expression of a fn which is: " + f);
-            //System.out.print(count++ + " ");
-            //System.out.println("VARRETURNING: " + f);
             return f;
         }
 
-        // if(containsRedex(f.getExp())) {
-        //     Function fn = new Function(f.getVar(), LoopThroughExpression( ((Application) f.getExp()).run() ));
-        //     return fn;
-        // }
-        Function fn = new Function(f.getVar(), LoopThroughExpression(f.getExp()));
-        // System.out.println("[FUNCTION] Returning: " + fn);
-        //System.out.print(count++ + " ");
-        //System.out.println("FNRETURN: " + fn);
-        return fn;
+        return new Function(f.getVar(), LoopThroughExpression(f.getExp()));
     }
  
-    // 99% sure the bug is in here
+    //Loop throgugh Application until a REDEX is found, substitute when it is
     public Expression LoopThroughApplications(Application a) {
-        //System.out.println("CALLS LTA ON: " + a);
         if(a.getLeft() instanceof Function f) {
             Expression e = f.substitute(f.getVar(), a.getRight());
-            //System.out.print(count++ + " ");
-            //System.out.println("[SUBSTITU] Returning: " + e);
             return LoopThroughExpression(e);
         }
         

@@ -62,5 +62,40 @@ mod = λa.\b. cdr (divpair a b)
 ; run (/ (* 3 6) 2)
 
 
+run (if (even? 2) Correct-Answer! WRONG-ANSWER!)
+run (if (even? 1) WRONG-ANSWER Correct-Answer!)
 
-run (if (and true false) WRONG-ANSWER Correct-Answer!)
+run (if (odd? 5) Correct-Answer! WRONG-ANSWER!)
+run (if (odd? 6) WRONG-ANSWER Correct-Answer!)
+
+run (if (zero? (- 2 2)) Correct-Answer! WRONG-ANSWER!)
+run (if (zero? (+ 0 1)) WRONG-ANSWER Correct-Answer!)
+
+run (if (leq? 2 5) Correct-Answer! WRONG-ANSWER!)
+run (if (leq? 5 5) Correct-Answer! WRONG-ANSWER!)
+run (if (leq? 7 5) WRONG-ANSWER Correct-Answer!)
+
+run (if (lt? 2 5) Correct-Answer! WRONG-ANSWER!)
+run (if (lt? 5 5) WRONG-ANSWER Correct-Answer!)
+run (if (lt? 7 5) WRONG-ANSWER Correct-Answer!)
+
+run (if (gt? 2 5) WRONG-ANSWER Correct-Answer!)
+run (if (gt? 5 5) WRONG-ANSWER Correct-Answer!)
+run (if (gt? 7 5) Correct-Answer! WRONG-ANSWER!)
+
+run (if (eq? 5 5) Correct-Answer! WRONG-ANSWER!)
+run (if (eq? 2 5) WRONG-ANSWER Correct-Answer!)
+
+run (if (neq? 2 5) Correct-Answer! WRONG-ANSWER!)
+run (if (neq? 5 5) WRONG-ANSWER Correct-Answer!)
+
+run (if (geq? 7 5) Correct-Answer! WRONG-ANSWER!)
+run (if (geq? 5 5) Correct-Answer! WRONG-ANSWER!)
+run (if (geq? 2 5) WRONG-ANSWER Correct-Answer!)
+
+
+cats = (cons C (cons A (cons T (cons S null))))
+run (car cats)
+run (car (cdr cats))
+run (car (cdr (cdr cats)))
+run (car (cdr (cdr (cdr cats))))

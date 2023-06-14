@@ -3,7 +3,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 public class Parser {
-	VariableMap variableMap = new VariableMap();
+	private VariableMap variableMap = new VariableMap();
 
 	public VariableMap getVariableMap() {
 		return variableMap;
@@ -25,34 +25,28 @@ public class Parser {
 		return idx;
 	}
 
+	private boolean checkTokenEqual(ArrayList<String> tokens, int idx, String check) {
+		return tokens.get(idx).equals(check);
+	}
+
 	private void addLambdaParenthesis(ArrayList<String> tokens, int idx) {
 		int i = idx;
 		int count = 0;
 
 		while(idx < tokens.size()) {
-			if(tokens.get(idx).equals("(")) {
-				count++;
-			} else if(tokens.get(idx).equals(")")) {
-				count--;
-
-				if(count == -1) {
-					tokens.add(i, "(");
-					tokens.add(idx + 1, ")");
-					return;
-				}
+			if(checkTokenEqual(tokens, idx, ")") && (--count == -1)) {
+				tokens.add(i, "(");
+				tokens.add(idx + 1, ")");
+				return;
 			}
+			if(checkTokenEqual(tokens, idx, "(")) count++;
 			idx++;
 		}
 
-		if(count == 0) {
-			tokens.add(i, "(");
-			tokens.add(")");
-			return;
-		}
+		if(count != 0) { System.out.println("Something is wrong with parsing parens."); return; }
 		
-		System.out.println("ERROR IN PARENTHESIS");
-		return;
-		
+		tokens.add(i, "(");
+		tokens.add(")");
 	}
 	
 	public Expression handleTokens(ArrayList<String> preparsed_tokens) throws ParseException {
