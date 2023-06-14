@@ -1,6 +1,9 @@
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Function implements Expression {
+    public static int counter_alpha_redux_postfix = 0;
     public Variable var;
     public Expression exp;
     public boolean innerFunction;
@@ -34,19 +37,54 @@ public class Function implements Expression {
     public Expression run() {
         return this;
     }
-    // run ((\x.\y.x) p)
-    // run ((\x.\p.\t.\h.\y.x) p)
-    // run ((\z.\y.x) p)
-  /**
+
+    private Expression updateVariableNames(Variable varToReplace, Expression e) {
+        if(e instanceof Application a) {
+			return new Application(updateVariableNames(varToReplace, a.left), updateVariableNames(varToReplace, a.right));
+        }
+        if(e instanceof Function f) {
+			return new Function((Variable) updateVariableNames(varToReplace, f.var), updateVariableNames(varToReplace, f.exp));
+        }
+        // e must be variable 
+
+		if(e instanceof Variable v) {
+            if(v.getID().equals(varToReplace.getID())) {
+                v.name = v.name + Integer.toString(counter_alpha_redux_postfix);
+            }
+        }
+        
+        return ((Variable) e);
+    }
+    
+    public Expression AlphaReduction(Expression e, Expression rightSide) {
+        if(e instanceof Function f) {
+            if(checkForVariableName(f.var, rightSide)) {
+                counter_alpha_redux_postfix++;
+                Function return_f = (Function) updateVariableNames(f.var, f);
+                return return_f;
+            }
+            return new Function(f.var, AlphaReduction(f.exp, rightSide));
+        }
+        if(e instanceof Application a) {
+            return new Application(AlphaReduction(a.getLeft(), rightSide), AlphaReduction(a.getRight(), rightSide));
+        }
+
+        return (Variable) e;
+    
+    }
+
+
+    /**
     * Carries out a singular substitution when running a function
     * @param  current  Current Expression -- We are substituting the things in this
     * @param  replaceExp Expression to replace the variable with
     * @param  varToReplace The given variable to be replaced
     * @return      Returns the final substituted expression
+    * 
     */
     public Expression substitute(Variable varToReplace, Expression replaceExp) {
-        System.out.println("SUBBING: " + varToReplace + " WITH: " + replaceExp + " IN: " + this);
-        printExpression(this);
+        AlphaReduction(this, replaceExp);
+
         if(this.exp instanceof Function innerFunc && this.innerFunction) {
             innerFunc.setInnerFunction(true);
         }
@@ -82,7 +120,7 @@ public class Function implements Expression {
             if(subbed_exp instanceof Variable v && v.toString().equals(this.var.toString())) {
                 return new Function(this.var, this.var);
             }
-            // END TODO
+            // TODO --> END TODO
 
             return new Function(this.var, subbed_exp);
         } 
@@ -91,9 +129,7 @@ public class Function implements Expression {
    // (\h. (h x a (\h. h a)) x
 
     private void syncVariableIDs(Expression exp, UUID id_to_set, String name_to_set_against) {
-        System.out.println("syncing: " + exp);
         if(exp instanceof Function fnexp) {
-            System.out.println("we are syncing a function: " + exp );
             // if have a fn, we want to set the id of inner vars with the same name to the id of the fn var
             Function function = (Function) exp;
 
@@ -112,9 +148,7 @@ public class Function implements Expression {
 
             // if exp is var, check ids
             if(function.exp instanceof Variable) {
-                System.out.println("we are syncing a variable inside a function: " + function);
                 if(((Variable) function.exp).toString().equals(function.var.toString())) {
-                    System.out.println("hits this for : " + function.var.toString() + " : " + function.var.getID() + " : " + function.exp + " : " + id_to_set);
                     ((Variable) function.exp).setID(id_to_set);
                 }
             } else if (function.exp instanceof Application) { // if app, sync left and right
@@ -130,7 +164,6 @@ public class Function implements Expression {
                 }
             }
         } else if(exp instanceof Variable) { // if we've recursed and hit a var, check if we need to set the id
-            System.out.println("we are syncing a variable: " + exp + " : " + ((Variable) exp).getID() + " : " + id_to_set + " : " + name_to_set_against);
             if(exp.toString().equals(name_to_set_against)) {
                 ((Variable) exp).setID(id_to_set);
             }
@@ -141,6 +174,43 @@ public class Function implements Expression {
             syncVariableIDs(app.getRight(), id_to_set, name_to_set_against);
         }
     }
+
+    public boolean checkForVariableName(Variable v, Expression e) {
+        Set<String> var_names = new HashSet<String>();
+        
+        var_names = LoopTillVariable(e, var_names);
+
+        if(var_names.contains(v.toString())) {
+            return true;
+        }
+        return false;
+    }
+
+    public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
+        if(e instanceof Function f) {
+            Set<String> temp = new HashSet<String>();
+            temp.addAll(LoopTillVariable(f.getVar(), variables));
+            temp.addAll(LoopTillVariable(f.getExp(), variables));
+            // LoopTillVariable(f.getVar(), variables);
+            // LoopTillVariable(f.getExp(), variables);
+            return temp;
+
+        }
+
+        if(e instanceof Application a) {
+            Set<String> temp = new HashSet<String>();
+            temp.addAll(LoopTillVariable(a.getLeft(), variables));
+            temp.addAll(LoopTillVariable(a.getRight(), variables));
+            return temp;
+        }
+
+        if(!variables.contains(e.toString())) {
+            variables.add(((Variable) e).toString());
+        };
+        
+        return variables;
+    }
+
 
     public void fixVariableIdentifiers() {
         Function deepcopied = ((Function) DeepCopyExpression(this));
@@ -157,9 +227,10 @@ public class Function implements Expression {
 			return new Function(new Variable(f.var.toString()), DeepCopyExpression(f.exp));
         }
         // e must be variable 
-
 		return new Variable(((Variable) e).toString());
     }
+
+
 
     public void printExpression(Expression exp) {
         if(exp instanceof Variable) {

@@ -1,7 +1,10 @@
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Variable implements Expression {
 	public String name;
+    public String displayname;
 	public UUID id;
 	
 	public Variable(String name) {
@@ -37,6 +40,48 @@ public class Variable implements Expression {
 	public Expression run() {
 		return this;
 	}
+	
+	public boolean checkForVariableName(Variable v, Expression e) {
+        Set<String> var_names = new HashSet<String>();
+        
+        var_names = LoopTillVariable(e, var_names);
 
+        if(var_names.contains(v.toString())) {
+            return true;
+        }
+        return false;
+    }
+
+    public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
+        if(e instanceof Function f) {
+            LoopTillVariable(f.getVar(), variables);
+            LoopTillVariable(f.getExp(), variables);
+        }
+
+        if(e instanceof Application a) {
+            LoopTillVariable(a.getLeft(), variables);
+            LoopTillVariable(a.getRight(), variables);
+        }
+
+        if(!variables.contains(e.toString())) {
+            variables.add(((Variable) e).toString());
+        };
+        
+        return variables;
+    }
+
+	public void printExpression(Expression exp) {
+        if(exp instanceof Variable) {
+            System.out.println("[Variable : " + exp + " : " + ((Variable) exp).getID() + "]");
+        } else if (exp instanceof Function) {
+            System.out.println("Function: " + exp);
+            System.out.println("[Function Variable : " + ((Function) exp).getVar() + " : " + ((Function) exp).getVar().getID() + "]");
+            printExpression(((Function) exp).getExp());
+        } else if (exp instanceof Application) {
+            System.out.println("Application: " + exp);
+            printExpression(((Application) exp).getLeft());
+            printExpression(((Application) exp).getRight());
+        }
+    }
 	// public 
 }

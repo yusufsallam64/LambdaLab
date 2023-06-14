@@ -104,29 +104,6 @@ public class Executor {
             return LoopThroughExpression(e);
         }
         
-        // System.out.println("looping through application: " + a);
-
-        // TODO --> i firmly believe that this is a future soln/where the problem is
-        // if(a.getRight() instanceof Application rhsapp) {
-        //     Expression left = LoopThroughExpression(a.getLeft());
-        //     Expression right = LoopThroughExpression(a.getRight());
-        //     return new Application(left, right).run();
-        // } else {
-        //     Expression left = LoopThroughExpression(a.getLeft());
-        //     return new Application(left, a.getRight()).run();
-        // }
-        
-        // Application newapp = new Application(LoopThroughExpression(a.getLeft()), LoopThroughExpression(a.getRight()));
-        // if(containsRedex(newapp)){
-        //     return newapp.run();
-        // } else {
-        //     return newapp;
-        // }
- 
-        Expression ap = new Application(LoopThroughExpression(a.getLeft()), a.getRight()).run();
-
-        //System.out.print(count++ + " ");
-        //System.out.println("RETURNS AP: " + ap);
-        return ap;
+        return new Application(LoopThroughExpression(a.getLeft()), a.getRight()).run();
     }
 }

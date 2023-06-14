@@ -1,3 +1,6 @@
+import java.util.HashSet;
+import java.util.Set;
+
 public class Application implements Expression {
     public Expression left;
     public Expression right;
@@ -23,48 +26,22 @@ public class Application implements Expression {
     }
 
     public Expression run() {
-        System.out.println("[APPLICATION]: " + this);
         if(this.left instanceof Function) {
-            //System.out.println("HITS THIS BRANCH");
-            //System.out.println("[APPLICATION] CURRENT: " + this);
-
             Function leftSide = (Function) this.left;
             
             leftSide.fixVariableIdentifiers(); // TODO --> i believe this is the bottleneck for everything
 
-            //System.out.println("[LHS]: " + leftSide);
-            //System.out.println("[RHS]: " + this.right);
-
-            //printExpression(this);
-
             Expression substituted = leftSide.substitute(((Function) left).getVar(), this.getRight());
-            //System.out.println("[SUBSTITUTED]: " + substituted);
-
             Expression evalled = substituted.run();
-
-            //System.out.println("[EVALLED]: " + evalled);
-
-            // System.out.println("[EXPRESSION] PreSub: " + leftSide);
-            // System.out.println("[EVALUATED] EvalledSub: " + evalled);
             Expression whatwegotback = evalled;
-            // System.out.println("[EXPRESSION] PostSub: " + whatwegotback);
-            // if(whatwegotback instanceof Function funcreturned) {
-            //     return recurseUntilApp(whatwegotback);
-            // }
-            // System.out.println("[APPLICARETU]: " + whatwegotback);
             return whatwegotback;
         }
         else {
             Application returnApp = new Application(this.left.run(), this.right.run());
-            // System.out.println("[APPLICATION] ReturningApp: " + returnApp);
             if(returnApp.getLeft() instanceof Function) {
                 Expression back = returnApp.getLeft().substitute(((Function) returnApp.getLeft()).getVar(), returnApp.getRight()).run();
-                // System.out.println("[REDEX] Returning: " + back);
-                // System.out.println("[APPLICARETU]: " + back);
                 return back;
             } else {
-                // System.out.println("[RECURSE] Returning: " + returnApp);
-                // System.out.println("[APPLICARETU]: " + returnApp);
                 return returnApp;
             }
         }
@@ -86,5 +63,34 @@ public class Application implements Expression {
             printExpression(((Application) exp).getLeft());
             printExpression(((Application) exp).getRight());
         }
+    }
+
+    public boolean checkForVariableName(Variable v, Expression e) {
+        Set<String> var_names = new HashSet<String>();
+        
+        var_names = LoopTillVariable(e, var_names);
+
+        if(var_names.contains(v.toString())) {
+            return true;
+        }
+        return false;
+    }
+
+    public Set<String> LoopTillVariable(Expression e, Set<String> variables) {
+        if(e instanceof Function f) {
+            LoopTillVariable(f.getVar(), variables);
+            LoopTillVariable(f.getExp(), variables);
+        }
+
+        if(e instanceof Application a) {
+            LoopTillVariable(a.getLeft(), variables);
+            LoopTillVariable(a.getRight(), variables);
+        }
+
+        if(!variables.contains(e.toString())) {
+            variables.add(((Variable) e).toString());
+        };
+        
+        return variables;
     }
 }
